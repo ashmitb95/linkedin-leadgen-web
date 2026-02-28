@@ -1,0 +1,204 @@
+"use client";
+
+import { useState } from "react";
+import type { Lead } from "@/lib/schema";
+import Badge from "@/components/Badge";
+
+function getStaleness(postDate: string | null): { label: string; type: string } {
+  if (!postDate) return { label: "N/A", type: "staleness-na" };
+  const d = new Date(postDate);
+  const now = new Date();
+  const days = Math.floor((now.getTime() - d.getTime()) / 86400000);
+  if (days <= 7) return { label: days + "d ago", type: "staleness-fresh" };
+  if (days <= 30) return { label: Math.floor(days / 7) + "w ago", type: "staleness-recent" };
+  return { label: Math.floor(days / 30) + "mo ago", type: "staleness-stale" };
+}
+
+export default function LeadCard({ lead, onStatusChange }: { lead: Lead; onStatusChange: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [copyLabel, setCopyLabel] = useState("Copy Draft");
+  const [emailCopyLabel, setEmailCopyLabel] = useState("Copy Email");
+
+  const tierLabel =
+    lead.tier === 1 ? "T1 Freelance" : lead.tier === 2 ? "T2 Product" : lead.tier === 3 ? "T3 AI Scale" : "T4 Branding";
+  const isSalesNav = lead.keyword_match && lead.keyword_match.startsWith("[SN]");
+  const contentLabel = isSalesNav ? "Profile Context" : "Full Post";
+  const postSnippet = lead.post_content
+    ? lead.post_content.slice(0, 300) + (lead.post_content.length > 300 ? "..." : "")
+    : isSalesNav ? "No profile context" : "No post content captured";
+  const relevancePct = Math.round(lead.relevance * 100);
+  const foundDate = lead.found_at ? new Date(lead.found_at).toLocaleDateString() : "";
+  const staleness = getStaleness(lead.post_date);
+
+  async function updateStatus(status: string) {
+    await fetch(`/api/leads/${lead.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    onStatusChange();
+  }
+
+  function copyDraft() {
+    if (lead.draft_message) {
+      navigator.clipboard.writeText(lead.draft_message).then(() => {
+        setCopyLabel("Copied!");
+        setTimeout(() => setCopyLabel("Copy Draft"), 1500);
+      });
+    }
+  }
+
+  function copyEmail() {
+    if (lead.contact_email) {
+      navigator.clipboard.writeText(lead.contact_email).then(() => {
+        setEmailCopyLabel("Copied!");
+        setTimeout(() => setEmailCopyLabel("Copy Email"), 1500);
+      });
+    }
+  }
+
+  return (
+    <div
+      className="bg-surface border border-border rounded-lg px-5 py-4 cursor-pointer transition-all hover:border-accent hover:bg-surface-hover"
+      onClick={() => setExpanded(!expanded)}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <div className="text-[15px] font-semibold">{lead.name}</div>
+          <div className="text-[13px] text-text-muted">{lead.company || "Unknown company"}</div>
+        </div>
+        <div className="flex gap-1.5 items-center">
+          <Badge type="tier" value={tierLabel} />
+          <Badge type="urgency" value={lead.urgency} />
+          <Badge type="staleness" value={staleness.label} variant={staleness.type} />
+          <select
+            className="status-select"
+            value={lead.status}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => updateStatus(e.target.value)}
+          >
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="replied">Replied</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+      </div>
+
+      {lead.headline && (
+        <div className="text-xs text-text-muted mb-1">{lead.headline}</div>
+      )}
+
+      <div className="text-[13px] text-text-muted mb-2 line-clamp-2">
+        &ldquo;{postSnippet}&rdquo;
+      </div>
+
+      {/* Meta */}
+      <div className="flex gap-4 text-xs text-text-muted items-center flex-wrap">
+        <span>
+          Relevance: {relevancePct}%{" "}
+          <span className="fit-bar">
+            <span
+              className={`fit-bar-fill ${relevancePct >= 70 ? "high" : relevancePct >= 40 ? "medium" : "low"}`}
+              style={{ width: `${relevancePct}%` }}
+            />
+          </span>
+        </span>
+        <span>Found: {foundDate}</span>
+        {lead.post_date && <span>Posted: {lead.post_date}</span>}
+        {lead.keyword_match && (
+          <span>Keyword: {lead.keyword_match.slice(0, 40)}...</span>
+        )}
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div className="mt-3 pt-3 border-t border-border">
+          {lead.post_content && (
+            <div className="mb-3">
+              <h4 className="text-xs text-text-muted uppercase mb-1">{contentLabel}</h4>
+              <p className="text-[13px] text-text whitespace-pre-wrap">{lead.post_content}</p>
+            </div>
+          )}
+
+          {(lead.contact_email || lead.contact_info) && (
+            <div className="mb-3">
+              <h4 className="text-xs text-text-muted uppercase mb-1">Contact Info</h4>
+              <div className="text-[13px] text-text flex flex-col gap-1">
+                {lead.contact_email && (
+                  <div>
+                    <span className="text-text-muted text-xs mr-2">Email:</span>
+                    <a
+                      href={`mailto:${lead.contact_email}`}
+                      className="text-accent-light hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {lead.contact_email}
+                    </a>
+                  </div>
+                )}
+                {lead.contact_info && (
+                  <div>
+                    <span className="text-text-muted text-xs mr-2">Other:</span>
+                    {lead.contact_info}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {lead.draft_message && (
+            <div className="mb-3">
+              <h4 className="text-xs text-text-muted uppercase mb-1">Draft Message</h4>
+              <pre className="text-[13px] text-text bg-bg p-3 rounded-md whitespace-pre-wrap break-words">
+                {lead.draft_message}
+              </pre>
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-3">
+            {lead.draft_message && (
+              <button
+                className="px-3.5 py-1.5 rounded-md text-[13px] bg-accent border border-accent text-white cursor-pointer hover:bg-accent-light"
+                onClick={(e) => { e.stopPropagation(); copyDraft(); }}
+              >
+                {copyLabel}
+              </button>
+            )}
+            {lead.contact_email && (
+              <button
+                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text cursor-pointer hover:bg-surface-hover"
+                onClick={(e) => { e.stopPropagation(); copyEmail(); }}
+              >
+                {emailCopyLabel}
+              </button>
+            )}
+            {lead.profile_url && (
+              <a
+                href={lead.profile_url}
+                target="_blank"
+                rel="noopener"
+                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text no-underline hover:bg-surface-hover"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Open LinkedIn
+              </a>
+            )}
+            {lead.post_url && (
+              <a
+                href={lead.post_url}
+                target="_blank"
+                rel="noopener"
+                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text no-underline hover:bg-surface-hover"
+                onClick={(e) => e.stopPropagation()}
+              >
+                View Post
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
