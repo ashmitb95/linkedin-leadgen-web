@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import NavBar from "@/components/NavBar";
+import AuthLayout from "@/components/AuthLayout";
 
 export const metadata: Metadata = {
   title: "LinkedIn Lead Gen Dashboard",
@@ -15,10 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="max-w-[1400px] mx-auto p-6">
-          <NavBar />
-          {children}
-        </div>
+        <AuthLayout>{children}</AuthLayout>
       </body>
     </html>
   );
