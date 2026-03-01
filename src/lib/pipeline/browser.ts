@@ -6,39 +6,65 @@
  */
 
 import { chromium, type BrowserContext, type Page } from "playwright";
+import path from "path";
 
 const CDP_PORT = Number(process.env.CDP_PORT) || 18800;
+const BROWSER_PROFILE_DIR = path.resolve(process.cwd(), ".browser-profile");
 
 export async function connectBrowser(): Promise<{
   context: BrowserContext;
   page: Page;
   close: () => Promise<void>;
 }> {
-  let browser;
-  try {
-    browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`);
-  } catch {
-    console.error(`Failed to connect to browser on CDP port ${CDP_PORT}.`);
-    console.error(`Make sure your browser is open with remote debugging enabled.`);
-    process.exit(1);
+  // Try CDP first (if user has a browser open with --remote-debugging-port)
+  if (process.env.CDP_PORT || process.env.USE_CDP === "true") {
+    let browser;
+    try {
+      browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`);
+    } catch {
+      console.error(`Failed to connect to browser on CDP port ${CDP_PORT}.`);
+      console.error(`Make sure your browser is open with remote debugging enabled.`);
+      process.exit(1);
+    }
+
+    const contexts = browser.contexts();
+    if (contexts.length === 0) {
+      console.error("No browser contexts found. Is the browser open?");
+      process.exit(1);
+    }
+
+    const context = contexts[0];
+    const page = await context.newPage();
+    return { context, page, close: async () => { await page.close(); } };
   }
 
-  const contexts = browser.contexts();
-  if (contexts.length === 0) {
-    console.error("No browser contexts found. Is the browser open?");
-    process.exit(1);
-  }
+  // Default: launch persistent browser with saved profile
+  console.log(`Launching browser (profile: ${BROWSER_PROFILE_DIR})`);
+  const context = await chromium.launchPersistentContext(BROWSER_PROFILE_DIR, {
+    headless: false,
+    viewport: { width: 1280, height: 900 },
+    args: ["--disable-blink-features=AutomationControlled"],
+  });
 
-  const context = contexts[0];
-  const page = await context.newPage();
+  const pages = context.pages();
+  const page = pages.length > 0 ? pages[0] : await context.newPage();
 
   return {
     context,
     page,
     close: async () => {
-      await page.close();
+      await context.close();
     },
   };
+}
+
+function isLoginPage(url: string, title: string): boolean {
+  return (
+    url.includes("/login") ||
+    url.includes("/authwall") ||
+    title.toLowerCase().includes("log in") ||
+    title.toLowerCase().includes("sign in")
+  );
 }
 
 export async function verifyLinkedInLogin(page: Page): Promise<void> {
@@ -49,18 +75,40 @@ export async function verifyLinkedInLogin(page: Page): Promise<void> {
   });
   await page.waitForTimeout(3000);
 
-  const pageUrl = page.url();
-  const pageTitle = await page.title();
+  let pageUrl = page.url();
+  let pageTitle = await page.title();
 
-  if (
-    pageUrl.includes("/login") ||
-    pageUrl.includes("/authwall") ||
-    pageTitle.toLowerCase().includes("log in") ||
-    pageTitle.toLowerCase().includes("sign in")
-  ) {
-    console.error("\nLinkedIn session expired! Log in manually, then re-run.");
-    await page.close();
-    process.exit(1);
+  if (isLoginPage(pageUrl, pageTitle)) {
+    console.log("\nLinkedIn session expired. Please log in in the browser window.");
+    console.log("Waiting for you to complete login...\n");
+
+    // Wait up to 5 minutes for the user to log in
+    const maxWait = 5 * 60 * 1000;
+    const pollInterval = 3000;
+    const start = Date.now();
+
+    let loggedIn = false;
+    while (Date.now() - start < maxWait) {
+      await page.waitForTimeout(pollInterval);
+      try {
+        await page.waitForLoadState("domcontentloaded", { timeout: 5000 });
+        pageUrl = page.url();
+        pageTitle = await page.title();
+        if (!isLoginPage(pageUrl, pageTitle)) {
+          loggedIn = true;
+          console.log("Login detected! Continuing...\n");
+          break;
+        }
+      } catch {
+        // Page is navigating (login redirect) — just wait for next poll
+      }
+    }
+
+    if (!loggedIn) {
+      console.error("Timed out waiting for login. Please try again.");
+      await page.close();
+      process.exit(1);
+    }
   }
 
   console.log(`Logged in. Page: "${pageTitle}"\n`);

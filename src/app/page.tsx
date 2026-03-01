@@ -266,7 +266,7 @@ export default function LeadsDashboard() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {dateLeads.map((lead) => (
-                    <LeadCard key={lead.id} lead={lead} onSelect={setSelectedLead} onStatusChange={loadStats} />
+                    <LeadCard key={lead.id} lead={lead} onSelect={setSelectedLead} onStatusChange={handleLeadUpdated} />
                   ))}
                 </div>
               </div>
