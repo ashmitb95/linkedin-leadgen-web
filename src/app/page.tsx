@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Lead, LeadStats } from "@/lib/schema";
 import StatsBar from "@/components/StatsBar";
 import FilterBar, { type FilterGroup } from "@/components/FilterBar";
 import LeadCard from "@/components/leads/LeadCard";
+import LeadTable from "@/components/leads/LeadTable";
 import DetailSidebar from "@/components/DetailSidebar";
 import LeadDetail from "@/components/leads/LeadDetail";
 
@@ -70,21 +71,65 @@ function formatDateLabel(dateKey: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+const STORAGE_KEY_FILTERS = "leadgen_filters";
+const STORAGE_KEY_VIEW = "leadgen_viewMode";
+
+const DEFAULT_FILTERS: Record<string, string> = {
+  status: "",
+  type: "",
+  source: "",
+  urgency: "",
+  sort: "recent",
+};
+
+function loadStoredFilters(): Record<string, string> {
+  if (typeof window === "undefined") return DEFAULT_FILTERS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FILTERS);
+    if (raw) return { ...DEFAULT_FILTERS, ...JSON.parse(raw) };
+  } catch {}
+  return DEFAULT_FILTERS;
+}
+
+function loadStoredViewMode(): "table" | "cards" {
+  if (typeof window === "undefined") return "cards";
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_VIEW);
+    if (raw === "table") return "table";
+    if (raw === "cards") return "cards";
+  } catch {}
+  return "cards";
+}
+
 export default function LeadsDashboard() {
   const [stats, setStats] = useState<LeadStats | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [filters, setFilters] = useState<Record<string, string>>({
-    status: "",
-    type: "",
-    source: "",
-    urgency: "",
-    sort: "recent",
-  });
+  const [viewMode, setViewMode] = useState<"table" | "cards">(loadStoredViewMode);
+  const [filters, setFilters] = useState<Record<string, string>>(loadStoredFilters);
+  const isInitialMount = useRef(true);
+
+  // Persist filters to localStorage
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY_FILTERS, JSON.stringify(filters));
+    } catch {}
+  }, [filters]);
+
+  // Persist view mode to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_VIEW, viewMode);
+    } catch {}
+  }, [viewMode]);
 
   const loadStats = useCallback(async () => {
-    const res = await fetch("/api/stats");
+    const res = await fetch("/api/stats", { cache: "no-store" });
     setStats(await res.json());
   }, []);
 
@@ -97,7 +142,7 @@ export default function LeadsDashboard() {
     if (filters.urgency) params.set("urgency", filters.urgency);
     if (filters.sort) params.set("sort", filters.sort);
 
-    const res = await fetch(`/api/leads?${params}`);
+    const res = await fetch(`/api/leads?${params}`, { cache: "no-store" });
     const data = await res.json();
     setLeads(data.leads);
     setLoading(false);
@@ -121,7 +166,7 @@ export default function LeadsDashboard() {
     return params.toString();
   }
 
-  // Group leads by date
+  // Group leads by date (used by cards view)
   const groupedLeads = new Map<string, Lead[]>();
   for (const lead of leads) {
     const dateKey = lead.found_at ? lead.found_at.split("T")[0] : "Unknown";
@@ -141,6 +186,11 @@ export default function LeadsDashboard() {
       ]
     : [];
 
+  const handleLeadUpdated = useCallback(() => {
+    loadStats();
+    loadLeads();
+  }, [loadStats, loadLeads]);
+
   return (
     <>
       {/* Header */}
@@ -157,43 +207,80 @@ export default function LeadsDashboard() {
 
       {stats && <StatsBar stats={statsItems} />}
 
-      <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
-
-      {/* Lead list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#71717a", fontSize: 14 }}>Loading leads...</div>
-        ) : leads.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#fafafa" }}>No leads found</div>
-            <div style={{ color: "#71717a", fontSize: 14 }}>Run the linkedin-leadgen pipeline to start finding leads, or adjust your filters.</div>
-          </div>
-        ) : (
-          Array.from(groupedLeads.entries()).map(([dateKey, dateLeads]) => (
-            <div key={dateKey}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#818cf8", padding: "16px 0 8px", marginTop: 8 }}>
-                {formatDateLabel(dateKey)}
-                <span style={{ fontSize: 12, fontWeight: 400, color: "#71717a", marginLeft: 8 }}>{dateLeads.length}</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {dateLeads.map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} onSelect={setSelectedLead} onStatusChange={loadStats} />
-                ))}
-              </div>
-            </div>
-          ))
-        )}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
+        <div className="view-toggle" style={{ flexShrink: 0 }}>
+          <button
+            className={viewMode === "table" ? "active" : ""}
+            onClick={() => setViewMode("table")}
+            title="Table view"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginRight: 4 }}>
+              <rect x="1" y="1" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.9"/>
+              <rect x="9" y="1" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.5"/>
+              <rect x="1" y="6" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.9"/>
+              <rect x="9" y="6" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.5"/>
+              <rect x="1" y="11" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.9"/>
+              <rect x="9" y="11" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.5"/>
+            </svg>
+            Table
+          </button>
+          <button
+            className={viewMode === "cards" ? "active" : ""}
+            onClick={() => setViewMode("cards")}
+            title="Card view"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginRight: 4 }}>
+              <rect x="1" y="1" width="14" height="4" rx="1" fill="currentColor" opacity="0.9"/>
+              <rect x="1" y="7" width="14" height="4" rx="1" fill="currentColor" opacity="0.6"/>
+              <rect x="1" y="13" width="14" height="2" rx="1" fill="currentColor" opacity="0.3"/>
+            </svg>
+            Cards
+          </button>
+        </div>
       </div>
+
+      {/* Lead content */}
+      {viewMode === "table" ? (
+        <LeadTable
+          leads={leads}
+          loading={loading}
+          onSelectLead={setSelectedLead}
+          onLeadUpdated={handleLeadUpdated}
+        />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "60px 0", color: "#71717a", fontSize: 14 }}>Loading leads...</div>
+          ) : leads.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#fafafa" }}>No leads found</div>
+              <div style={{ color: "#71717a", fontSize: 14 }}>Run the linkedin-leadgen pipeline to start finding leads, or adjust your filters.</div>
+            </div>
+          ) : (
+            Array.from(groupedLeads.entries()).map(([dateKey, dateLeads]) => (
+              <div key={dateKey}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#818cf8", padding: "16px 0 8px", marginTop: 8 }}>
+                  {formatDateLabel(dateKey)}
+                  <span style={{ fontSize: 12, fontWeight: 400, color: "#71717a", marginLeft: 8 }}>{dateLeads.length}</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {dateLeads.map((lead) => (
+                    <LeadCard key={lead.id} lead={lead} onSelect={setSelectedLead} onStatusChange={loadStats} />
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Sidebar */}
       <DetailSidebar open={!!selectedLead} onClose={() => setSelectedLead(null)}>
         {selectedLead && (
           <LeadDetail
             lead={selectedLead}
-            onStatusChange={() => {
-              loadStats();
-              loadLeads();
-            }}
+            onStatusChange={handleLeadUpdated}
           />
         )}
       </DetailSidebar>

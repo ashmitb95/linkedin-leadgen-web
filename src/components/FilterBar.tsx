@@ -22,9 +22,10 @@ export default function FilterBar({ groups, current, onChange }: FilterBarProps)
       style={{
         display: "flex",
         gap: 10,
-        marginBottom: 24,
         alignItems: "center",
         flexWrap: "wrap",
+        flex: 1,
+        minWidth: 0,
       }}
     >
       {groups.map((group) => (

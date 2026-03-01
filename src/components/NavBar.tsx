@@ -20,6 +20,11 @@ export default function NavBar() {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      localStorage.removeItem("leadgen_filters");
+      localStorage.removeItem("leadgen_viewMode");
+      localStorage.removeItem("leadgen_colWidths");
+    } catch {}
     router.push("/login");
     router.refresh();
   }

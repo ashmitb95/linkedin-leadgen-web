@@ -23,6 +23,11 @@ export default function LoginPage() {
 
     if (res.ok) {
       const data = await res.json();
+      try {
+        localStorage.removeItem("leadgen_filters");
+        localStorage.removeItem("leadgen_viewMode");
+        localStorage.removeItem("leadgen_colWidths");
+      } catch {}
       router.push(data.redirect || "/");
       router.refresh();
     } else {

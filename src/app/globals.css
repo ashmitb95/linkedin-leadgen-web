@@ -471,3 +471,50 @@ body {
     max-width: 100%;
   }
 }
+
+/* ── AG Grid tweaks ── */
+.ag-root-wrapper {
+  border: 1px solid #3f3f46 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.ag-cell-inline-editing {
+  background: #18181b !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+.ag-cell {
+  display: flex !important;
+  align-items: center !important;
+}
+.ag-header-cell-text {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── View toggle pills ── */
+.view-toggle {
+  display: inline-flex;
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.view-toggle button {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #a1a1aa;
+  transition: all 0.2s ease;
+}
+.view-toggle button:hover {
+  color: #fafafa;
+}
+.view-toggle button.active {
+  background: #6366f1;
+  color: #fff;
+}

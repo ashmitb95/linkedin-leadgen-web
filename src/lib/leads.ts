@@ -54,14 +54,33 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   return (result.rows[0] as unknown as Lead) || null;
 }
 
-export async function updateLeadStatus(id: string, status: string): Promise<boolean> {
+export async function updateLead(
+  id: string,
+  updates: Record<string, string | number | null>
+): Promise<boolean> {
   const db = getDb();
   const now = new Date().toISOString();
+  const setClauses: string[] = [];
+  const args: (string | number | null)[] = [];
+
+  for (const [field, value] of Object.entries(updates)) {
+    setClauses.push(`${field} = ?`);
+    args.push(value);
+  }
+
+  setClauses.push("updated_at = ?");
+  args.push(now);
+  args.push(id);
+
   const result = await db.execute({
-    sql: "UPDATE leads SET status = ?, updated_at = ? WHERE id = ?",
-    args: [status, now, id],
+    sql: `UPDATE leads SET ${setClauses.join(", ")} WHERE id = ?`,
+    args,
   });
   return result.rowsAffected > 0;
+}
+
+export async function updateLeadStatus(id: string, status: string): Promise<boolean> {
+  return updateLead(id, { status });
 }
 
 export async function getLeadStats(): Promise<LeadStats> {
