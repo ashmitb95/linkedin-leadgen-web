@@ -5,12 +5,29 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:init": "npx tsx scripts/db-init.ts",
+    "lead:run": "npx tsx scripts/lead-run.ts",
+    "lead:run:test": "npx tsx scripts/lead-run.ts --max 1",
+    "lead:run:content": "npx tsx scripts/lead-run.ts --content-only",
+    "lead:run:salesnav": "npx tsx scripts/lead-run.ts --salesnav-only",
+    "lead:run:tech": "npx tsx scripts/lead-run.ts --dev-only",
+    "lead:run:branding": "npx tsx scripts/lead-run.ts --branding-only",
+    "job:run": "npx tsx scripts/job-run.ts",
+    "job:run:quick": "npx tsx scripts/job-run.ts --quick",
+    "job:run:linkedin": "npx tsx scripts/job-run.ts --linkedin-only",
+    "job:run:naukri": "npx tsx scripts/job-run.ts --naukri-only",
+    "job:run:hirist": "npx tsx scripts/job-run.ts --hirist-only",
+    "anusha:run": "npx tsx scripts/anusha-job-run.ts",
+    "anusha:run:quick": "npx tsx scripts/anusha-job-run.ts --quick",
+    "rescore": "npx tsx scripts/rescore.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@libsql/client": "^0.17.0",
     "exceljs": "^4.4.0",
     "next": "16.1.6",
+    "playwright": "^1.58.2",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

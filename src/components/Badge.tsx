@@ -23,6 +23,11 @@ const badgeColors: Record<string, { bg: string; fg: string }> = {
   "source-linkedin_jobs": { bg: "#1e3a5f", fg: "#60a5fa" },
   "source-naukri": { bg: "#14532d", fg: "#4ade80" },
   "source-hirist": { bg: "#422006", fg: "#fbbf24" },
+  "source-salesnav": { bg: "#1e3a5f", fg: "#60a5fa" },
+  "source-Sales Navigator": { bg: "#1e3a5f", fg: "#60a5fa" },
+  "source-Content": { bg: "#2e1065", fg: "#c084fc" },
+  "type-Tech": { bg: "#312e81", fg: "#a78bfa" },
+  "type-Branding": { bg: "#4a1942", fg: "#f472b6" },
 };
 
 const defaultBadge = { bg: "#27272a", fg: "#a1a1aa" };

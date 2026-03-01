@@ -13,27 +13,50 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({ groups, current, onChange }: FilterBarProps) {
+  const hasActiveFilters = groups.some(
+    (g) => g.key !== "sort" && (current[g.key] || "") !== ""
+  );
+
   return (
-    <div className="filter-bar no-scrollbar">
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        marginBottom: 24,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {groups.map((group) => (
-        <div key={group.key} className="filter-group">
-          <span className="filter-label">
-            {group.label}:
-          </span>
-          {group.options.map((opt) => {
-            const isActive = (current[group.key] || "") === opt.value;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => onChange(group.key, opt.value)}
-                className={isActive ? "pill pill-active" : "pill"}
-              >
+        <div key={group.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className="filter-label">{group.label}</span>
+          <select
+            className="status-select"
+            value={current[group.key] || ""}
+            onChange={(e) => onChange(group.key, e.target.value)}
+            style={{ minHeight: 34, padding: "6px 10px", fontSize: 13 }}
+          >
+            {group.options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
                 {opt.label}
-              </button>
-            );
-          })}
+              </option>
+            ))}
+          </select>
         </div>
       ))}
+      {hasActiveFilters && (
+        <button
+          className="pill"
+          style={{ fontSize: 12, padding: "6px 12px" }}
+          onClick={() => {
+            for (const g of groups) {
+              if (g.key !== "sort") onChange(g.key, "");
+            }
+          }}
+        >
+          Clear filters
+        </button>
+      )}
     </div>
   );
 }

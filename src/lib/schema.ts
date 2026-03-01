@@ -4,6 +4,7 @@ export interface Lead {
   headline: string | null;
   company: string | null;
   profile_url: string;
+  public_profile_url: string | null;
   post_content: string | null;
   post_url: string | null;
   keyword_match: string | null;
@@ -73,6 +74,8 @@ export interface JobRun {
 export interface LeadFilters {
   status?: string;
   tier?: number;
+  type?: "tech" | "branding";
+  source?: "content" | "salesnav";
   urgency?: string;
   sort?: "recent" | "relevance";
   limit?: number;
@@ -91,9 +94,12 @@ export interface JobFilters {
 export interface LeadStats {
   total_leads: number;
   new_leads: number;
-  contacted: number;
-  replied: number;
-  archived: number;
+  message_sent: number;
+  reply_received: number;
+  meeting_booked: number;
+  client_converted: number;
+  client_churned: number;
+  invalid: number;
   by_tier: { tier: number; count: number }[];
   by_urgency: { urgency: string; count: number }[];
   recent_runs: Run[];

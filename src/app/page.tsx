@@ -5,6 +5,8 @@ import type { Lead, LeadStats } from "@/lib/schema";
 import StatsBar from "@/components/StatsBar";
 import FilterBar, { type FilterGroup } from "@/components/FilterBar";
 import LeadCard from "@/components/leads/LeadCard";
+import DetailSidebar from "@/components/DetailSidebar";
+import LeadDetail from "@/components/leads/LeadDetail";
 
 const filterGroups: FilterGroup[] = [
   {
@@ -12,20 +14,31 @@ const filterGroups: FilterGroup[] = [
     key: "status",
     options: [
       { label: "All", value: "" },
-      { label: "New", value: "new" },
-      { label: "Contacted", value: "contacted" },
-      { label: "Replied", value: "replied" },
-      { label: "Archived", value: "archived" },
+      { label: "Needs Triage", value: "new" },
+      { label: "Message Sent", value: "message_sent" },
+      { label: "Reply Received", value: "reply_received" },
+      { label: "Meeting Booked", value: "meeting_booked" },
+      { label: "Converted", value: "client_converted" },
+      { label: "Churned", value: "client_churned" },
+      { label: "Invalid", value: "invalid" },
     ],
   },
   {
-    label: "Tier",
-    key: "tier",
+    label: "Type",
+    key: "type",
     options: [
       { label: "All", value: "" },
-      { label: "T1 Freelance", value: "1" },
-      { label: "T2 Product", value: "2" },
-      { label: "T3 AI Scale", value: "3" },
+      { label: "Tech", value: "tech" },
+      { label: "Branding", value: "branding" },
+    ],
+  },
+  {
+    label: "Source",
+    key: "source",
+    options: [
+      { label: "All", value: "" },
+      { label: "Content", value: "content" },
+      { label: "Sales Nav", value: "salesnav" },
     ],
   },
   {
@@ -61,9 +74,11 @@ export default function LeadsDashboard() {
   const [stats, setStats] = useState<LeadStats | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [filters, setFilters] = useState<Record<string, string>>({
     status: "",
-    tier: "",
+    type: "",
+    source: "",
     urgency: "",
     sort: "recent",
   });
@@ -77,7 +92,8 @@ export default function LeadsDashboard() {
     setLoading(true);
     const params = new URLSearchParams();
     if (filters.status) params.set("status", filters.status);
-    if (filters.tier) params.set("tier", filters.tier);
+    if (filters.type) params.set("type", filters.type);
+    if (filters.source) params.set("source", filters.source);
     if (filters.urgency) params.set("urgency", filters.urgency);
     if (filters.sort) params.set("sort", filters.sort);
 
@@ -99,7 +115,8 @@ export default function LeadsDashboard() {
   function exportQueryString() {
     const params = new URLSearchParams();
     if (filters.status) params.set("status", filters.status);
-    if (filters.tier) params.set("tier", filters.tier);
+    if (filters.type) params.set("type", filters.type);
+    if (filters.source) params.set("source", filters.source);
     if (filters.urgency) params.set("urgency", filters.urgency);
     return params.toString();
   }
@@ -116,10 +133,11 @@ export default function LeadsDashboard() {
     ? [
         { label: "Total Leads", value: stats.total_leads },
         { label: "New Today", value: stats.today_new, colorClass: "text-green" },
-        { label: "New", value: stats.new_leads, colorClass: "text-blue" },
-        { label: "Contacted", value: stats.contacted, colorClass: "text-yellow" },
-        { label: "Replied", value: stats.replied, colorClass: "text-green" },
-        { label: "Archived", value: stats.archived },
+        { label: "Needs Triage", value: stats.new_leads, colorClass: "text-blue" },
+        { label: "Msg Sent", value: stats.message_sent, colorClass: "text-yellow" },
+        { label: "Replies", value: stats.reply_received, colorClass: "text-green" },
+        { label: "Meetings", value: stats.meeting_booked, colorClass: "text-accent-light" },
+        { label: "Converted", value: stats.client_converted, colorClass: "text-green" },
       ]
     : [];
 
@@ -159,13 +177,26 @@ export default function LeadsDashboard() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {dateLeads.map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} onStatusChange={loadStats} />
+                  <LeadCard key={lead.id} lead={lead} onSelect={setSelectedLead} onStatusChange={loadStats} />
                 ))}
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Sidebar */}
+      <DetailSidebar open={!!selectedLead} onClose={() => setSelectedLead(null)}>
+        {selectedLead && (
+          <LeadDetail
+            lead={selectedLead}
+            onStatusChange={() => {
+              loadStats();
+              loadLeads();
+            }}
+          />
+        )}
+      </DetailSidebar>
     </>
   );
 }

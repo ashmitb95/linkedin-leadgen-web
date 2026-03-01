@@ -1,0 +1,49 @@
+{
+  "content_search": {
+    "description": "Regular LinkedIn content search — finds posts with buying intent",
+    "keywords": [
+      "looking for a freelance developer",
+      "need someone to build my website",
+      "anyone know a good web developer",
+      "looking for a developer for my startup",
+      "need help building an app",
+      "recommendations for a freelance developer",
+      "hiring freelance developer small project",
+      "need help with my landing page",
+      "non-technical founder need developer",
+      "outgrowing no-code need real developer",
+      "looking for a fractional CTO",
+      "AI startup need technical cofounder"
+    ],
+    "branding_keywords": [
+      "looking for branding help",
+      "need help with brand identity",
+      "need packaging design",
+      "looking for packaging designer",
+      "startup rebranding",
+      "CPG brand design help",
+      "product packaging design",
+      "brand identity designer"
+    ],
+    "max_per_run": 6
+  },
+  "sales_nav_search": {
+    "description": "Sales Navigator people search — finds ICP matches by profile",
+    "keywords": [
+      "founder MVP",
+      "non-technical founder AI",
+      "startup founder looking developer",
+      "founder no-code scaling",
+      "small business owner need website",
+      "founder fractional CTO"
+    ],
+    "branding_keywords": [
+      "CPG founder packaging",
+      "DTC brand founder",
+      "food brand founder",
+      "beauty brand founder startup"
+    ],
+    "max_per_run": 4
+  },
+  "search_delay_ms": 5000
+}

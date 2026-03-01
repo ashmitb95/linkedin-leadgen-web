@@ -14,6 +14,16 @@ export async function getLeads(filters: LeadFilters): Promise<Lead[]> {
     conditions.push("tier = ?");
     args.push(filters.tier);
   }
+  if (filters.type === "tech") {
+    conditions.push("tier IN (1, 2, 3)");
+  } else if (filters.type === "branding") {
+    conditions.push("tier = 4");
+  }
+  if (filters.source === "salesnav") {
+    conditions.push("keyword_match LIKE '[SN]%'");
+  } else if (filters.source === "content") {
+    conditions.push("(keyword_match NOT LIKE '[SN]%' OR keyword_match IS NULL)");
+  }
   if (filters.urgency) {
     conditions.push("urgency = ?");
     args.push(filters.urgency);
@@ -78,9 +88,12 @@ export async function getLeadStats(): Promise<LeadStats> {
   return {
     total_leads: totalRes.rows[0].c as number,
     new_leads: statusMap["new"] || 0,
-    contacted: statusMap["contacted"] || 0,
-    replied: statusMap["replied"] || 0,
-    archived: statusMap["archived"] || 0,
+    message_sent: statusMap["message_sent"] || 0,
+    reply_received: statusMap["reply_received"] || 0,
+    meeting_booked: statusMap["meeting_booked"] || 0,
+    client_converted: statusMap["client_converted"] || 0,
+    client_churned: statusMap["client_churned"] || 0,
+    invalid: statusMap["invalid"] || 0,
     by_tier: byTierRes.rows as unknown as { tier: number; count: number }[],
     by_urgency: byUrgencyRes.rows as unknown as { urgency: string; count: number }[],
     recent_runs: runsRes.rows as unknown as Run[],
@@ -130,7 +143,7 @@ export async function getLeadDigest(date?: string): Promise<string> {
 
   md += `### Pipeline Totals\n`;
   md += `- Total leads: ${statsRes.total_leads}\n`;
-  md += `- New: ${statsRes.new_leads} | Contacted: ${statsRes.contacted} | Replied: ${statsRes.replied} | Archived: ${statsRes.archived}\n\n`;
+  md += `- Triage: ${statsRes.new_leads} | Sent: ${statsRes.message_sent} | Replies: ${statsRes.reply_received} | Meetings: ${statsRes.meeting_booked} | Converted: ${statsRes.client_converted} | Invalid: ${statsRes.invalid}\n\n`;
 
   const formatEntry = (lead: Lead) => {
     const tierLabel =
