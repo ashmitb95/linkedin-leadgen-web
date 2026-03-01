@@ -18,24 +18,14 @@ export default function FilterBar({ groups, current, onChange }: FilterBarProps)
   );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 10,
-        alignItems: "center",
-        flexWrap: "wrap",
-        flex: 1,
-        minWidth: 0,
-      }}
-    >
+    <div className="filter-grid">
       {groups.map((group) => (
-        <div key={group.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div key={group.key} className="filter-item">
           <span className="filter-label">{group.label}</span>
           <select
-            className="status-select"
+            className="status-select filter-select"
             value={current[group.key] || ""}
             onChange={(e) => onChange(group.key, e.target.value)}
-            style={{ minHeight: 34, padding: "6px 10px", fontSize: 13 }}
           >
             {group.options.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -47,15 +37,14 @@ export default function FilterBar({ groups, current, onChange }: FilterBarProps)
       ))}
       {hasActiveFilters && (
         <button
-          className="pill"
-          style={{ fontSize: 12, padding: "6px 12px" }}
+          className="pill filter-clear"
           onClick={() => {
             for (const g of groups) {
               if (g.key !== "sort") onChange(g.key, "");
             }
           }}
         >
-          Clear filters
+          Clear
         </button>
       )}
     </div>

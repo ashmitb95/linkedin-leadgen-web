@@ -279,24 +279,50 @@ body {
   color: #fafafa;
 }
 
-/* ── Filter bar ── */
-.filter-bar {
+/* ── Filter toolbar (filters + view toggle row) ── */
+.filter-toolbar {
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
-@media (max-width: 639px) {
-  .filter-bar {
-    gap: 12px;
+.filter-toolbar .view-toggle {
+  flex-shrink: 0;
+}
+@media (max-width: 1023px) {
+  .filter-toolbar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .filter-toolbar .view-toggle {
+    align-self: flex-end;
   }
 }
-.filter-group {
+
+/* ── Filter grid ── */
+.filter-grid {
   display: flex;
-  gap: 6px;
+  gap: 10px;
   align-items: center;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-select {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.filter-clear {
+  font-size: 12px;
+  padding: 6px 12px;
 }
 .filter-label {
   font-size: 11px;
@@ -304,7 +330,40 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #71717a;
-  margin-right: 2px;
+  white-space: nowrap;
+}
+
+/* Tablet: 3-column grid */
+@media (max-width: 1023px) {
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+  .filter-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+  .filter-select {
+    width: 100%;
+  }
+  .filter-clear {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+/* Phone: 2-column grid */
+@media (max-width: 479px) {
+  .filter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .filter-select {
+    min-height: 38px;
+    font-size: 14px;
+  }
 }
 
 /* ── Stats grid ── */
@@ -472,6 +531,24 @@ body {
   }
 }
 
+/* ── Lead table container (responsive height) ── */
+.lead-table-container {
+  width: 100%;
+  height: calc(100vh - 300px);
+  min-height: 350px;
+}
+@media (max-width: 767px) {
+  .lead-table-container {
+    height: calc(100vh - 260px);
+    min-height: 300px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lead-table-container {
+    height: calc(100vh - 280px);
+  }
+}
+
 /* ── AG Grid tweaks ── */
 .ag-root-wrapper {
   border: 1px solid #3f3f46 !important;
@@ -490,6 +567,14 @@ body {
 .ag-header-cell-text {
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+@media (max-width: 767px) {
+  .ag-root-wrapper {
+    border-radius: 8px !important;
+  }
+  .ag-header-cell-text {
+    font-size: 10px;
+  }
 }
 
 /* ── View toggle pills ── */
@@ -517,4 +602,14 @@ body {
 .view-toggle button.active {
   background: #6366f1;
   color: #fff;
+}
+.view-toggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+@media (max-width: 639px) {
+  .view-toggle button svg {
+    display: none;
+  }
 }

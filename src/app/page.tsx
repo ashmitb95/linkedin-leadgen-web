@@ -207,15 +207,15 @@ export default function LeadsDashboard() {
 
       {stats && <StatsBar stats={statsItems} />}
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      <div className="filter-toolbar">
         <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
-        <div className="view-toggle" style={{ flexShrink: 0 }}>
+        <div className="view-toggle">
           <button
             className={viewMode === "table" ? "active" : ""}
             onClick={() => setViewMode("table")}
             title="Table view"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginRight: 4 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
               <rect x="1" y="1" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.9"/>
               <rect x="9" y="1" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.5"/>
               <rect x="1" y="6" width="6" height="3" rx="0.5" fill="currentColor" opacity="0.9"/>
@@ -230,7 +230,7 @@ export default function LeadsDashboard() {
             onClick={() => setViewMode("cards")}
             title="Card view"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ marginRight: 4 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
               <rect x="1" y="1" width="14" height="4" rx="1" fill="currentColor" opacity="0.9"/>
               <rect x="1" y="7" width="14" height="4" rx="1" fill="currentColor" opacity="0.6"/>
               <rect x="1" y="13" width="14" height="2" rx="1" fill="currentColor" opacity="0.3"/>

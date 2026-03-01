@@ -430,10 +430,22 @@ interface LeadTableProps {
 export default function LeadTable({ leads, loading, onSelectLead, onLeadUpdated }: LeadTableProps) {
   const gridRef = useRef<AgGridReact>(null);
   const savedWidths = useRef(loadColumnWidths());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setNarrow(window.innerWidth < 768);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const columnDefs = useMemo<ColDef[]>(() => {
     const widths = savedWidths.current;
-    const cols = baseColumnDefs.map((col) => {
+    const cols = buildColumnDefs(narrow).map((col) => {
       const key = col.field || col.headerName || "";
       if (key && widths[key]) {
         return { ...col, width: widths[key] };
@@ -445,7 +457,7 @@ export default function LeadTable({ leads, loading, onSelectLead, onLeadUpdated 
       {
         headerName: "",
         width: 70,
-        pinned: "right",
+        pinned: narrow ? undefined : "right",
         sortable: false,
         filter: false,
         resizable: false,
@@ -477,7 +489,7 @@ export default function LeadTable({ leads, loading, onSelectLead, onLeadUpdated 
         ),
       },
     ];
-  }, [onSelectLead]);
+  }, [onSelectLead, narrow]);
 
   const defaultColDef = useMemo(
     () => ({
@@ -527,7 +539,7 @@ export default function LeadTable({ leads, loading, onSelectLead, onLeadUpdated 
   );
 
   return (
-    <div style={{ width: "100%", height: "calc(100vh - 300px)", minHeight: 400 }}>
+    <div ref={containerRef} className="lead-table-container">
       <AgGridReact
         ref={gridRef}
         theme={darkTheme}
