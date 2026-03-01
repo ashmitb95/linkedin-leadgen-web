@@ -25,33 +25,28 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="flex items-center justify-between mb-4">
-      <div className="flex gap-4">
+    <nav className="navbar">
+      <div className="navbar-links no-scrollbar">
         {links.map(({ href, label }) => {
           const isActive = pathname === href;
           return (
             <Link
               key={href}
               href={href}
-              className={`text-[13px] no-underline pb-1 border-b-2 ${
-                isActive
-                  ? "text-accent-light border-accent-light"
-                  : "text-text-muted border-transparent hover:text-text"
-              }`}
+              className={isActive ? "nav-link nav-link-active" : "nav-link"}
             >
               {label}
             </Link>
           );
         })}
       </div>
-      <div className="flex items-center gap-3">
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
         {user && (
-          <span className="text-xs text-text-muted">{user}</span>
+          <span className="nav-user-chip">
+            {user}
+          </span>
         )}
-        <button
-          onClick={handleLogout}
-          className="text-xs text-text-muted hover:text-text cursor-pointer"
-        >
+        <button onClick={handleLogout} className="nav-logout">
           Logout
         </button>
       </div>

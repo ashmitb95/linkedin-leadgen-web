@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto p-6">
+    <div className="app-container">
       <NavBar />
       {children}
     </div>

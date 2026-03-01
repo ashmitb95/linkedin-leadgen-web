@@ -32,18 +32,33 @@ export default function LoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-bg">
-      <div className="w-full max-w-sm">
-        <div className="bg-surface border border-border rounded-xl p-8">
-          <h1 className="text-xl font-semibold text-center mb-1">
-            <span className="text-accent-light">LinkedIn</span> Lead Gen
-          </h1>
-          <p className="text-text-muted text-center text-sm mb-6">Sign in to continue</p>
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "14px 16px",
+    background: "#09090b",
+    border: "1px solid #3f3f46",
+    borderRadius: 12,
+    color: "#fafafa",
+    fontSize: 14,
+    fontFamily: "inherit",
+    transition: "all 0.2s ease",
+    outline: "none",
+  };
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#09090b", padding: "0 16px" }}>
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div style={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 20, padding: 40, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, textAlign: "center", marginBottom: 4, letterSpacing: "-0.02em" }}>
+            <span style={{ color: "#818cf8" }}>LinkedIn</span> Lead Gen
+          </h1>
+          <p style={{ color: "#a1a1aa", textAlign: "center", fontSize: 14, marginBottom: 32 }}>
+            Sign in to continue
+          </p>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div>
-              <label className="text-xs text-text-muted uppercase tracking-wide block mb-1.5">
+              <label style={{ fontSize: 11, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600, display: "block", marginBottom: 8 }}>
                 Username
               </label>
               <input
@@ -52,13 +67,21 @@ export default function LoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
                 required
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-lg text-text text-sm focus:outline-none focus:border-accent"
+                style={inputStyle}
                 placeholder="Enter username"
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#6366f1";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.2)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#3f3f46";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
 
             <div>
-              <label className="text-xs text-text-muted uppercase tracking-wide block mb-1.5">
+              <label style={{ fontSize: 11, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600, display: "block", marginBottom: 8 }}>
                 Password
               </label>
               <input
@@ -66,19 +89,41 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2.5 bg-bg border border-border rounded-lg text-text text-sm focus:outline-none focus:border-accent"
+                style={inputStyle}
                 placeholder="Enter password"
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#6366f1";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.2)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "#3f3f46";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
 
             {error && (
-              <div className="text-red text-sm text-center py-1">{error}</div>
+              <div style={{ color: "#ef4444", fontSize: 14, textAlign: "center", padding: "4px 0" }}>{error}</div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-accent text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-accent-light disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+              style={{
+                width: "100%",
+                padding: "14px 0",
+                background: loading ? "#4f46e5" : "#6366f1",
+                color: "#fff",
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                cursor: loading ? "not-allowed" : "pointer",
+                border: "none",
+                opacity: loading ? 0.6 : 1,
+                transition: "all 0.2s ease",
+                marginTop: 4,
+              }}
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>

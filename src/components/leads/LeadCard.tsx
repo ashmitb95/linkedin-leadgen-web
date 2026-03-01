@@ -58,17 +58,16 @@ export default function LeadCard({ lead, onStatusChange }: { lead: Lead; onStatu
   }
 
   return (
-    <div
-      className="bg-surface border border-border rounded-lg px-5 py-4 cursor-pointer transition-all hover:border-accent hover:bg-surface-hover"
-      onClick={() => setExpanded(!expanded)}
-    >
-      {/* Header */}
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <div className="text-[15px] font-semibold">{lead.name}</div>
-          <div className="text-[13px] text-text-muted">{lead.company || "Unknown company"}</div>
+    <div className="card" style={{ cursor: "pointer" }} onClick={() => setExpanded(!expanded)}>
+      {/* Header row */}
+      <div className="card-header">
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#fafafa", lineHeight: 1.4 }}>{lead.name}</div>
+          <div style={{ fontSize: 13, color: "#a1a1aa", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {lead.company || "Unknown company"}
+          </div>
         </div>
-        <div className="flex gap-1.5 items-center">
+        <div className="card-badges">
           <Badge type="tier" value={tierLabel} />
           <Badge type="urgency" value={lead.urgency} />
           <Badge type="staleness" value={staleness.label} variant={staleness.type} />
@@ -86,18 +85,20 @@ export default function LeadCard({ lead, onStatusChange }: { lead: Lead; onStatu
         </div>
       </div>
 
+      {/* Headline */}
       {lead.headline && (
-        <div className="text-xs text-text-muted mb-1">{lead.headline}</div>
+        <div style={{ fontSize: 12, color: "#a1a1aa", marginBottom: 6 }}>{lead.headline}</div>
       )}
 
-      <div className="text-[13px] text-text-muted mb-2 line-clamp-2">
+      {/* Post snippet */}
+      <div style={{ fontSize: 13, color: "#71717a", marginBottom: 12, lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
         &ldquo;{postSnippet}&rdquo;
       </div>
 
-      {/* Meta */}
-      <div className="flex gap-4 text-xs text-text-muted items-center flex-wrap">
+      {/* Meta row */}
+      <div className="card-meta">
         <span>
-          Relevance: {relevancePct}%{" "}
+          Relevance: {relevancePct}%
           <span className="fit-bar">
             <span
               className={`fit-bar-fill ${relevancePct >= 70 ? "high" : relevancePct >= 40 ? "medium" : "low"}`}
@@ -112,36 +113,32 @@ export default function LeadCard({ lead, onStatusChange }: { lead: Lead; onStatu
         )}
       </div>
 
-      {/* Expanded detail */}
+      {/* Expanded */}
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-border">
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #27272a" }}>
           {lead.post_content && (
-            <div className="mb-3">
-              <h4 className="text-xs text-text-muted uppercase mb-1">{contentLabel}</h4>
-              <p className="text-[13px] text-text whitespace-pre-wrap">{lead.post_content}</p>
+            <div style={{ marginBottom: 16 }}>
+              <div className="section-label">{contentLabel}</div>
+              <div style={{ fontSize: 13, color: "#fafafa", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{lead.post_content}</div>
             </div>
           )}
 
           {(lead.contact_email || lead.contact_info) && (
-            <div className="mb-3">
-              <h4 className="text-xs text-text-muted uppercase mb-1">Contact Info</h4>
-              <div className="text-[13px] text-text flex flex-col gap-1">
+            <div style={{ marginBottom: 16 }}>
+              <div className="section-label">Contact Info</div>
+              <div style={{ fontSize: 13, display: "flex", flexDirection: "column", gap: 4 }}>
                 {lead.contact_email && (
                   <div>
-                    <span className="text-text-muted text-xs mr-2">Email:</span>
-                    <a
-                      href={`mailto:${lead.contact_email}`}
-                      className="text-accent-light hover:underline"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <span style={{ fontSize: 12, color: "#71717a", marginRight: 8 }}>Email:</span>
+                    <a href={`mailto:${lead.contact_email}`} style={{ color: "#818cf8" }} onClick={(e) => e.stopPropagation()}>
                       {lead.contact_email}
                     </a>
                   </div>
                 )}
                 {lead.contact_info && (
                   <div>
-                    <span className="text-text-muted text-xs mr-2">Other:</span>
-                    {lead.contact_info}
+                    <span style={{ fontSize: 12, color: "#71717a", marginRight: 8 }}>Other:</span>
+                    <span style={{ color: "#fafafa" }}>{lead.contact_info}</span>
                   </div>
                 )}
               </div>
@@ -149,50 +146,30 @@ export default function LeadCard({ lead, onStatusChange }: { lead: Lead; onStatu
           )}
 
           {lead.draft_message && (
-            <div className="mb-3">
-              <h4 className="text-xs text-text-muted uppercase mb-1">Draft Message</h4>
-              <pre className="text-[13px] text-text bg-bg p-3 rounded-md whitespace-pre-wrap break-words">
-                {lead.draft_message}
-              </pre>
+            <div style={{ marginBottom: 16 }}>
+              <div className="section-label">Draft Message</div>
+              <pre className="code-block">{lead.draft_message}</pre>
             </div>
           )}
 
-          <div className="flex gap-2 mt-3">
+          <div className="card-actions">
             {lead.draft_message && (
-              <button
-                className="px-3.5 py-1.5 rounded-md text-[13px] bg-accent border border-accent text-white cursor-pointer hover:bg-accent-light"
-                onClick={(e) => { e.stopPropagation(); copyDraft(); }}
-              >
+              <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); copyDraft(); }}>
                 {copyLabel}
               </button>
             )}
             {lead.contact_email && (
-              <button
-                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text cursor-pointer hover:bg-surface-hover"
-                onClick={(e) => { e.stopPropagation(); copyEmail(); }}
-              >
+              <button className="btn" onClick={(e) => { e.stopPropagation(); copyEmail(); }}>
                 {emailCopyLabel}
               </button>
             )}
             {lead.profile_url && (
-              <a
-                href={lead.profile_url}
-                target="_blank"
-                rel="noopener"
-                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text no-underline hover:bg-surface-hover"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <a href={lead.profile_url} target="_blank" rel="noopener" className="btn" onClick={(e) => e.stopPropagation()}>
                 Open LinkedIn
               </a>
             )}
             {lead.post_url && (
-              <a
-                href={lead.post_url}
-                target="_blank"
-                rel="noopener"
-                className="px-3.5 py-1.5 rounded-md text-[13px] border border-border bg-surface text-text no-underline hover:bg-surface-hover"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <a href={lead.post_url} target="_blank" rel="noopener" className="btn" onClick={(e) => e.stopPropagation()}>
                 View Post
               </a>
             )}

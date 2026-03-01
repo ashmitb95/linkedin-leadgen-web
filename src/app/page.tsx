@@ -125,29 +125,15 @@ export default function LeadsDashboard() {
 
   return (
     <>
-      <header className="flex justify-between items-center mb-6 pb-4 border-b border-border">
-        <h1 className="text-xl font-semibold">
-          <span className="text-accent-light">LinkedIn</span> Lead Gen Dashboard
+      {/* Header */}
+      <header className="page-header">
+        <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>
+          <span style={{ color: "#818cf8" }}>LinkedIn</span> Lead Gen Dashboard
         </h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => { loadStats(); loadLeads(); }}
-            className="px-4 py-2 bg-surface border border-border text-text rounded-md text-[13px] cursor-pointer hover:bg-surface-hover"
-          >
-            Refresh
-          </button>
-          <button
-            onClick={() => { window.location.href = `/api/export/xlsx?${exportQueryString()}`; }}
-            className="px-4 py-2 bg-surface border border-border text-text rounded-md text-[13px] cursor-pointer hover:bg-surface-hover"
-          >
-            Export XLSX
-          </button>
-          <button
-            onClick={() => { window.location.href = `/api/export/html?${exportQueryString()}`; }}
-            className="px-4 py-2 bg-accent border border-accent text-white rounded-md text-[13px] cursor-pointer hover:bg-accent-light"
-          >
-            Export Report
-          </button>
+        <div className="header-actions">
+          <button className="btn" onClick={() => { loadStats(); loadLeads(); }}>Refresh</button>
+          <button className="btn" onClick={() => { window.location.href = `/api/export/xlsx?${exportQueryString()}`; }}>Export XLSX</button>
+          <button className="btn btn-primary" onClick={() => { window.location.href = `/api/export/html?${exportQueryString()}`; }}>Export Report</button>
         </div>
       </header>
 
@@ -155,26 +141,27 @@ export default function LeadsDashboard() {
 
       <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
 
-      <div className="flex flex-col gap-2">
+      {/* Lead list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {loading ? (
-          <div className="text-center py-10 text-text-muted">Loading leads...</div>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#71717a", fontSize: 14 }}>Loading leads...</div>
         ) : leads.length === 0 ? (
-          <div className="text-center py-15">
-            <h3 className="text-lg mb-2 text-text">No leads found</h3>
-            <p className="text-text-muted">Run the linkedin-leadgen pipeline to start finding leads, or adjust your filters.</p>
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#fafafa" }}>No leads found</div>
+            <div style={{ color: "#71717a", fontSize: 14 }}>Run the linkedin-leadgen pipeline to start finding leads, or adjust your filters.</div>
           </div>
         ) : (
           Array.from(groupedLeads.entries()).map(([dateKey, dateLeads]) => (
             <div key={dateKey}>
-              <div className="text-[13px] font-semibold text-accent-light py-3 pb-1.5 border-b border-border mt-2 first:mt-0">
-                {formatDateLabel(dateKey)}{" "}
-                <span className="text-xs font-normal text-text-muted ml-1.5">{dateLeads.length}</span>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#818cf8", padding: "16px 0 8px", marginTop: 8 }}>
+                {formatDateLabel(dateKey)}
+                <span style={{ fontSize: 12, fontWeight: 400, color: "#71717a", marginLeft: 8 }}>{dateLeads.length}</span>
               </div>
-              {dateLeads.map((lead) => (
-                <div key={lead.id} className="mt-2">
-                  <LeadCard lead={lead} onStatusChange={loadStats} />
-                </div>
-              ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {dateLeads.map((lead) => (
+                  <LeadCard key={lead.id} lead={lead} onStatusChange={loadStats} />
+                ))}
+              </div>
             </div>
           ))
         )}

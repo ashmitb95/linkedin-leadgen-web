@@ -116,29 +116,15 @@ export default function JobDashboard({
 
   return (
     <>
-      <header className="flex justify-between items-center mb-6 pb-4 border-b border-border">
-        <h1 className="text-xl font-semibold">
-          <span className="text-accent-light">Job</span> {title}
+      {/* Header */}
+      <header className="page-header">
+        <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>
+          <span style={{ color: "#818cf8" }}>Job</span> {title}
         </h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => { loadStats(); loadJobs(); }}
-            className="px-4 py-2 bg-surface border border-border text-text rounded-md text-[13px] cursor-pointer hover:bg-surface-hover"
-          >
-            Refresh
-          </button>
-          <button
-            onClick={() => { window.location.href = `${exportCsvPath}?${exportQueryString()}`; }}
-            className="px-4 py-2 bg-surface border border-border text-text rounded-md text-[13px] cursor-pointer hover:bg-surface-hover"
-          >
-            Export CSV
-          </button>
-          <button
-            onClick={() => { window.location.href = `${exportHtmlPath}?${exportQueryString()}`; }}
-            className="px-4 py-2 bg-accent border border-accent text-white rounded-md text-[13px] cursor-pointer hover:bg-accent-light"
-          >
-            Export Report
-          </button>
+        <div className="header-actions">
+          <button className="btn" onClick={() => { loadStats(); loadJobs(); }}>Refresh</button>
+          <button className="btn" onClick={() => { window.location.href = `${exportCsvPath}?${exportQueryString()}`; }}>Export CSV</button>
+          <button className="btn btn-primary" onClick={() => { window.location.href = `${exportHtmlPath}?${exportQueryString()}`; }}>Export Report</button>
         </div>
       </header>
 
@@ -146,13 +132,14 @@ export default function JobDashboard({
 
       <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
 
-      <div className="flex flex-col gap-2">
+      {/* Job list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {loading ? (
-          <div className="text-center py-10 text-text-muted">Loading jobs...</div>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#71717a", fontSize: 14 }}>Loading jobs...</div>
         ) : jobs.length === 0 ? (
-          <div className="text-center py-15">
-            <h3 className="text-lg mb-2 text-text">No jobs found</h3>
-            <p className="text-text-muted">Run the job search pipeline to find jobs, or adjust your filters.</p>
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#fafafa" }}>No jobs found</div>
+            <div style={{ color: "#71717a", fontSize: 14 }}>Run the job search pipeline to find jobs, or adjust your filters.</div>
           </div>
         ) : (
           jobs.map((job) => (
