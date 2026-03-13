@@ -2,7 +2,7 @@
   "name": "Sourav",
   "years_of_experience": 35,
   "education": "Certificate Course (NIIT Swift), Maruti Udyog Training",
-  "domain": ["Shipping", "Logistics", "Freight Forwarding", "Container Operations", "Import/Export", "Supply Chain", "NVOCC", "Maritime"],
+  "domain": ["Shipping", "Logistics", "Freight Forwarding", "Container Operations", "Import/Export", "Supply Chain", "NVOCC", "Maritime", "3PL"],
   "skills": {
     "primary": ["Business Development", "Branch Management", "Operations Management", "Freight Forwarding", "Container Shipping", "Import/Export Operations", "Customer Relationship Management"],
     "secondary": ["NVOCC Operations", "Container Leasing", "Railway Logistics", "Coastal Shipping", "Air Cargo", "Project Cargo", "WCA Network", "Vessel Operations", "Port Operations", "Customs Coordination", "LCL/FCL Consolidation", "Revenue Generation", "Team Administration"]
@@ -19,7 +19,11 @@
     "Director - Freight Forwarding",
     "Senior Manager - Supply Chain",
     "Branch Head - NVOCC",
-    "Manager - Import/Export Operations"
+    "Manager - Import/Export Operations",
+    "Country Agent - Foreign Shipping Line",
+    "Regional Head - 3PL",
+    "General Manager - 3PL Operations",
+    "Consultant - Logistics / Freight Forwarding"
   ],
   "seniority_range": ["Manager", "Senior Manager", "General Manager", "Director", "Vice President", "Head"],
   "location": {

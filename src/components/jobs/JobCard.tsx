@@ -29,6 +29,7 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
   const [copyLabel, setCopyLabel] = useState("Copy Draft");
   const [notesLabel, setNotesLabel] = useState("Save Notes");
   const [notes, setNotes] = useState(job.notes || "");
+  const [status, setStatus] = useState(job.status);
 
   const fitPct = Math.round(job.fit_score * 100);
   const stackPct = Math.round(job.stack_match * 100);
@@ -38,12 +39,19 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
     : "";
   const foundDate = job.found_at ? new Date(job.found_at).toLocaleDateString() : "";
 
-  async function updateStatus(status: string) {
-    await fetch(`${apiPrefix}/${job.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+  async function updateStatus(newStatus: string) {
+    const prevStatus = status;
+    setStatus(newStatus);
+    try {
+      const res = await fetch(`${apiPrefix}/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) setStatus(prevStatus);
+    } catch {
+      setStatus(prevStatus);
+    }
     onStatusChange();
   }
 
@@ -82,7 +90,7 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
           <Badge type="source" value={job.source} />
           <select
             className="status-select"
-            value={job.status}
+            value={status}
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => updateStatus(e.target.value)}
           >

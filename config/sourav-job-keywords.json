@@ -13,9 +13,12 @@
       "shipping agency hiring kolkata",
       "freight forwarding business development hiring kolkata",
       "hiring supply chain manager kolkata",
-      "hiring shipping manager east india"
+      "hiring shipping manager east india",
+      "3PL hiring manager kolkata",
+      "country agent shipping line india hiring",
+      "logistics consultant hiring kolkata"
     ],
-    "max_per_run": 6,
+    "max_per_run": 15,
     "max_scrolls": 6
   },
   "jobs_search": {
@@ -28,9 +31,11 @@
       "Manager Import Export Kolkata",
       "NVOCC Manager Kolkata",
       "Container Line Manager Kolkata",
-      "Freight Forwarding Manager Kolkata"
+      "Freight Forwarding Manager Kolkata",
+      "3PL Manager Kolkata",
+      "Country Agent Shipping Line India"
     ],
-    "max_per_run": 4,
+    "max_per_run": 10,
     "max_scrolls": 8,
     "filters": {
       "date_posted": "past_week",
@@ -48,9 +53,11 @@
       "Operations Manager Container Kolkata",
       "Import Export Manager Kolkata",
       "NVOCC Manager Kolkata",
-      "Shipping Manager Kolkata"
+      "Shipping Manager Kolkata",
+      "3PL Manager Kolkata",
+      "Country Agent Shipping Kolkata"
     ],
-    "max_per_run": 5,
+    "max_per_run": 10,
     "max_pages": 4,
     "filters": {
       "experience": "15-40",
