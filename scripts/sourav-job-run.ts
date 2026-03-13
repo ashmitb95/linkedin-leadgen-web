@@ -1,19 +1,18 @@
 /**
- * anusha-job-run.ts — Job search pipeline for Anusha.
+ * sourav-job-run.ts — Job search pipeline for Sourav.
  *
- * Same multi-source pipeline as job-run.ts but uses Anusha's config/profile
- * and writes to anusha_jobs/anusha_job_runs tables.
+ * Same multi-source pipeline as job-run.ts but uses Sourav's config/profile
+ * and writes to sourav_jobs/sourav_job_runs tables.
  *
  * Usage:
- *   npx tsx scripts/anusha-job-run.ts                    # Full run
- *   npx tsx scripts/anusha-job-run.ts --quick            # Smoke test
- *   npx tsx scripts/anusha-job-run.ts --max 2            # Limit searches
- *   npx tsx scripts/anusha-job-run.ts --content-only     # Only LinkedIn hiring posts
- *   npx tsx scripts/anusha-job-run.ts --jobs-only        # Only LinkedIn job listings
- *   npx tsx scripts/anusha-job-run.ts --naukri-only      # Only Naukri.com
- *   npx tsx scripts/anusha-job-run.ts --hirist-only      # Only Hirist.tech
- *   npx tsx scripts/anusha-job-run.ts --boards-only      # Only Naukri + Hirist
- *   npx tsx scripts/anusha-job-run.ts --linkedin-only    # Only LinkedIn
+ *   npx tsx scripts/sourav-job-run.ts                    # Full run
+ *   npx tsx scripts/sourav-job-run.ts --quick            # Smoke test
+ *   npx tsx scripts/sourav-job-run.ts --max 2            # Limit searches
+ *   npx tsx scripts/sourav-job-run.ts --content-only     # Only LinkedIn hiring posts
+ *   npx tsx scripts/sourav-job-run.ts --jobs-only        # Only LinkedIn job listings
+ *   npx tsx scripts/sourav-job-run.ts --naukri-only      # Only Naukri.com
+ *   npx tsx scripts/sourav-job-run.ts --boards-only      # Only Naukri + Hirist
+ *   npx tsx scripts/sourav-job-run.ts --linkedin-only    # Only LinkedIn
  */
 
 import { loadEnv } from "../src/lib/pipeline/env";
@@ -36,11 +35,11 @@ import {
   type SearchJob,
 } from "../src/lib/pipeline/browser";
 import { extractAndScoreJobs } from "../src/lib/pipeline/job-extract";
-import { anushaJobOps } from "../src/lib/pipeline/db-ops";
-import { anushaJobsDb } from "../src/lib/jobs";
+import { souravJobOps } from "../src/lib/pipeline/db-ops";
+import { souravJobsDb } from "../src/lib/jobs";
 
-const CONFIG_PATH = path.resolve(process.cwd(), "config", "anusha-job-keywords.json");
-const PROFILE_PATH = path.resolve(process.cwd(), "config", "anusha-job-profile.json");
+const CONFIG_PATH = path.resolve(process.cwd(), "config", "sourav-job-keywords.json");
+const PROFILE_PATH = path.resolve(process.cwd(), "config", "sourav-job-profile.json");
 const profile = JSON.parse(readFileSync(PROFILE_PATH, "utf-8"));
 
 interface RunStats {
@@ -65,12 +64,12 @@ async function runSearch(
     await page.goto(job.url, { waitUntil: "domcontentloaded", timeout: 20000 });
     await page.waitForTimeout(4000);
 
-    console.log("    Scrolling and extracting...");
+    console.log("    Extracting...");
     const blocksJson = await page.evaluate(`(${job.extractJs})()`);
     const parsed = JSON.parse(blocksJson as string);
     const blockCount = parsed.total || 0;
     stats.blocksFound += blockCount;
-    console.log(`    Found ${blockCount} result blocks (${parsed.scrolls} scrolls)`);
+    console.log(`    Found ${blockCount} result blocks`);
 
     if (blockCount === 0) {
       console.log("    No results — skipping scoring");
@@ -78,7 +77,7 @@ async function runSearch(
       return;
     }
 
-    console.log("    Scoring with Claude (Anusha profile)...");
+    console.log("    Scoring with Claude (Sourav profile)...");
     const scoredJobs = await extractAndScoreJobs(blocksJson as string, job.keyword, job.mode as any, profile);
     console.log(`    ${scoredJobs.length} matching jobs`);
     stats.jobsScored += scoredJobs.length;
@@ -89,7 +88,7 @@ async function runSearch(
         ? j.jobUrl || `${j.company}|${j.title}`
         : `${j.company}|${j.title}|${j.posterUrl}`;
 
-      const { isNew } = await anushaJobOps.upsertJob({
+      const { isNew } = await souravJobOps.upsertJob({
         dedup_key: dedupKey,
         source: job.mode,
         title: j.title,
@@ -150,8 +149,8 @@ async function main() {
 
   const contentScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.content_search?.max_scrolls || 6;
   const jobsScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.jobs_search?.max_scrolls || 8;
-  const naukriPages = (quick ? 1 : null) || config.naukri?.max_pages || config.naukri?.max_scrolls || 3;
   const hiristScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.hirist?.max_scrolls || 3;
+  const naukriPages = (quick ? 1 : null) || config.naukri?.max_pages || config.naukri?.max_scrolls || 3;
   const delayMs = quick ? (quickCfg.search_delay_ms || 2000) : (config.search_delay_ms || 5000);
 
   const contentExtractJs = buildContentExtractJs(contentScrolls);
@@ -222,10 +221,10 @@ async function main() {
   const hiristCount = searchJobs.filter((j) => j.mode === "hirist").length;
   const modeLabel = quick ? "QUICK" : "FULL";
 
-  console.log(`\n=== Anusha — Job Search Run [${modeLabel}] ===`);
-  console.log(`Profile: ${profile.name || "Anusha"} — ${profile.education || "MBA Life Sciences"}`);
+  console.log(`\n=== Sourav — Job Search Run [${modeLabel}] ===`);
+  console.log(`Profile: ${profile.name || "Sourav"} — Shipping/Logistics/Freight Forwarding`);
   console.log(`LinkedIn Content: ${contentCount} | LinkedIn Jobs: ${jobsCount}`);
-  console.log(`Naukri: ${naukriCount} | Hirist: ${hiristCount}`);
+  console.log(`Naukri: ${naukriCount} (${naukriPages} pages/keyword) | Hirist: ${hiristCount}`);
   console.log(`Delay: ${delayMs}ms | Total searches: ${searchJobs.length}`);
 
   const { page, close } = await connectBrowser();
@@ -239,7 +238,7 @@ async function main() {
     errors: [],
   };
 
-  const runId = await anushaJobOps.logJobRunStart();
+  const runId = await souravJobOps.logJobRunStart();
 
   for (let i = 0; i < searchJobs.length; i++) {
     console.log(`[${i + 1}/${searchJobs.length}]`);
@@ -251,7 +250,7 @@ async function main() {
     }
   }
 
-  await anushaJobOps.logJobRunEnd(runId, {
+  await souravJobOps.logJobRunEnd(runId, {
     searches_run: stats.searchesRun,
     jobs_found: stats.jobsScored,
     jobs_new: stats.jobsNew,
@@ -259,7 +258,7 @@ async function main() {
 
   await close();
 
-  console.log("\n=== Anusha — Run Complete ===");
+  console.log("\n=== Sourav — Run Complete ===");
   console.log(`Searches: ${stats.searchesRun}/${searchJobs.length}`);
   console.log(`Blocks found: ${stats.blocksFound}`);
   console.log(`Jobs scored: ${stats.jobsScored}`);
@@ -269,7 +268,7 @@ async function main() {
     for (const e of stats.errors) console.log(`  - ${e}`);
   }
 
-  const digest = await anushaJobsDb.getJobDigest();
+  const digest = await souravJobsDb.getJobDigest();
   console.log("\n" + digest);
 }
 

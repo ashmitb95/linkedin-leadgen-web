@@ -1,0 +1,38 @@
+{
+  "name": "Sourav",
+  "years_of_experience": 35,
+  "education": "Certificate Course (NIIT Swift), Maruti Udyog Training",
+  "domain": ["Shipping", "Logistics", "Freight Forwarding", "Container Operations", "Import/Export", "Supply Chain", "NVOCC", "Maritime"],
+  "skills": {
+    "primary": ["Business Development", "Branch Management", "Operations Management", "Freight Forwarding", "Container Shipping", "Import/Export Operations", "Customer Relationship Management"],
+    "secondary": ["NVOCC Operations", "Container Leasing", "Railway Logistics", "Coastal Shipping", "Air Cargo", "Project Cargo", "WCA Network", "Vessel Operations", "Port Operations", "Customs Coordination", "LCL/FCL Consolidation", "Revenue Generation", "Team Administration"]
+  },
+  "target_roles": [
+    "Branch Manager - Shipping",
+    "General Manager - Logistics",
+    "Regional Manager - Freight Forwarding",
+    "Business Development Manager - Shipping",
+    "Operations Manager - Container Line",
+    "Head of Operations - Logistics",
+    "Country Manager - Shipping",
+    "Vice President - Logistics",
+    "Director - Freight Forwarding",
+    "Senior Manager - Supply Chain",
+    "Branch Head - NVOCC",
+    "Manager - Import/Export Operations"
+  ],
+  "seniority_range": ["Manager", "Senior Manager", "General Manager", "Director", "Vice President", "Head"],
+  "location": {
+    "country": "India",
+    "eligible_for": ["India", "Kolkata"],
+    "preferred_cities": ["Kolkata", "Haldia", "Howrah"],
+    "notes": "Kolkata only. Skip roles in other cities unless explicitly remote. Based in Kolkata, Eastern India."
+  },
+  "work_preferences": {
+    "remote_ok": false,
+    "hybrid_ok": true,
+    "onsite_ok": true,
+    "onsite_cities": ["Kolkata", "Haldia", "Howrah"]
+  },
+  "industry_keywords": ["container line", "NVOCC", "freight forwarder", "shipping agency", "liner agency", "ICD", "CFS", "customs", "port", "vessel", "feeder", "mother vessel", "break bulk", "reefer", "FCL", "LCL", "bill of lading", "consignee", "shipper", "clearing agent"]
+}

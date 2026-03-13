@@ -152,13 +152,13 @@ async function main() {
 
   const contentScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.content_search?.max_scrolls || 6;
   const jobsScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.jobs_search?.max_scrolls || 8;
-  const naukriScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.naukri?.max_scrolls || 4;
+  const naukriPages = (quick ? 1 : null) || config.naukri?.max_pages || config.naukri?.max_scrolls || 3;
   const hiristScrolls = scrollsOverride || (quick ? quickCfg.max_scrolls : null) || config.hirist?.max_scrolls || 3;
   const delayMs = quick ? (quickCfg.search_delay_ms || 2000) : (config.search_delay_ms || 5000);
 
   const contentExtractJs = buildContentExtractJs(contentScrolls);
   const jobsExtractJs = buildJobsExtractJs(jobsScrolls);
-  const naukriExtractJs = buildNaukriExtractJs(naukriScrolls);
+  const naukriExtractJs = buildNaukriExtractJs();
   const hiristExtractJs = buildHiristExtractJs(hiristScrolls);
 
   const searchJobs: SearchJob[] = [];
@@ -192,12 +192,20 @@ async function main() {
       }
     }
 
+    // Naukri: paginated — create one search job per keyword per page
     if (runBoards && (!singleSource || naukriOnly) && config.naukri?.enabled !== false) {
       const naukriKeywords = config.naukri?.keywords || [];
       const naukriMax = maxSearches || (quick ? (quickCfg.max_per_run || 1) : null) || config.naukri?.max_per_run || 4;
       const naukriFilters = config.naukri?.filters;
       for (const kw of naukriKeywords.slice(0, naukriMax)) {
-        searchJobs.push({ keyword: kw, mode: "naukri", url: buildNaukriSearchUrl(kw, naukriFilters), extractJs: naukriExtractJs });
+        for (let pg = 1; pg <= naukriPages; pg++) {
+          searchJobs.push({
+            keyword: pg > 1 ? `${kw} (p${pg})` : kw,
+            mode: "naukri",
+            url: buildNaukriSearchUrl(kw, naukriFilters, pg),
+            extractJs: naukriExtractJs,
+          });
+        }
       }
     }
 

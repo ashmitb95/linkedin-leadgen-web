@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3001",
     "db:init": "npx tsx scripts/db-init.ts",
     "lead:run": "npx tsx scripts/lead-run.ts",
     "lead:run:test": "npx tsx scripts/lead-run.ts --max 1",
@@ -20,6 +20,10 @@
     "job:run:hirist": "npx tsx scripts/job-run.ts --hirist-only",
     "anusha:run": "npx tsx scripts/anusha-job-run.ts",
     "anusha:run:quick": "npx tsx scripts/anusha-job-run.ts --quick",
+    "sourav:run": "npx tsx scripts/sourav-job-run.ts",
+    "sourav:run:quick": "npx tsx scripts/sourav-job-run.ts --quick",
+    "sourav:run:linkedin": "npx tsx scripts/sourav-job-run.ts --linkedin-only",
+    "sourav:run:naukri": "npx tsx scripts/sourav-job-run.ts --naukri-only",
     "rescore": "npx tsx scripts/rescore.ts"
   },
   "dependencies": {

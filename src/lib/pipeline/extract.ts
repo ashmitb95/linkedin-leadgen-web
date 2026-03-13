@@ -6,6 +6,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { repairJson } from "./json-utils";
 
 export interface ScoredLead {
   name: string;
@@ -173,7 +174,53 @@ export async function extractAndScore(
     return [];
   }
 
-  const leads: ScoredLead[] = JSON.parse(jsonStr.slice(arrayStart, arrayEnd + 1));
+  const rawSlice = jsonStr.slice(arrayStart, arrayEnd + 1);
+  let leads: ScoredLead[];
+
+  try {
+    leads = JSON.parse(rawSlice);
+  } catch (parseErr) {
+    console.error(`    JSON parse failed, attempting repair: ${(parseErr as Error).message}`);
+
+    // Try basic repair
+    try {
+      leads = JSON.parse(repairJson(rawSlice));
+      console.error(`    JSON repair succeeded`);
+    } catch {
+      // Retry via Claude — send broken output back for fixing
+      console.error(`    Repair failed, retrying Claude call...`);
+      try {
+        const retryResponse = await client.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 8192,
+          messages: [
+            {
+              role: "user",
+              content: `${prompt}\n\nToday's date: ${today}\nSearch keyword: "${keyword}"\n\nBlocks:\n${JSON.stringify(truncatedBlocks, null, 2)}`,
+            },
+            { role: "assistant", content: content.text },
+            {
+              role: "user",
+              content: "Your JSON response was malformed and could not be parsed. Return the SAME data as a valid JSON array. No markdown, no code blocks. Only output the JSON array.",
+            },
+          ],
+        });
+        const retryContent = retryResponse.content[0];
+        if (retryContent.type !== "text") throw new Error("Unexpected retry response type");
+        let retryStr = retryContent.text.trim();
+        const retryCodeMatch = retryStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (retryCodeMatch) retryStr = retryCodeMatch[1].trim();
+        const rStart = retryStr.indexOf("[");
+        const rEnd = retryStr.lastIndexOf("]");
+        if (rStart === -1 || rEnd === -1) throw new Error("No JSON array in retry response");
+        leads = JSON.parse(retryStr.slice(rStart, rEnd + 1));
+        console.error(`    Retry succeeded`);
+      } catch (retryErr) {
+        console.error(`    Retry also failed: ${(retryErr as Error).message}`);
+        return [];
+      }
+    }
+  }
 
   return leads
     .map((lead) => ({

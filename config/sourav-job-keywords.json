@@ -1,0 +1,74 @@
+{
+  "content_search": {
+    "description": "LinkedIn content search — finds posts announcing hiring for Shipping/Logistics/Freight Forwarding roles",
+    "keywords": [
+      "hiring branch manager shipping kolkata",
+      "hiring logistics manager kolkata",
+      "hiring freight forwarding manager kolkata",
+      "shipping company hiring kolkata",
+      "container line hiring kolkata",
+      "NVOCC hiring kolkata",
+      "hiring operations manager logistics kolkata",
+      "hiring import export manager kolkata",
+      "shipping agency hiring kolkata",
+      "freight forwarding business development hiring kolkata",
+      "hiring supply chain manager kolkata",
+      "hiring shipping manager east india"
+    ],
+    "max_per_run": 6,
+    "max_scrolls": 6
+  },
+  "jobs_search": {
+    "description": "LinkedIn Jobs search — structured job listings for Shipping/Logistics roles",
+    "keywords": [
+      "Branch Manager Shipping Kolkata",
+      "Business Development Manager Logistics Kolkata",
+      "Operations Manager Freight Forwarding Kolkata",
+      "General Manager Shipping Kolkata",
+      "Manager Import Export Kolkata",
+      "NVOCC Manager Kolkata",
+      "Container Line Manager Kolkata",
+      "Freight Forwarding Manager Kolkata"
+    ],
+    "max_per_run": 4,
+    "max_scrolls": 8,
+    "filters": {
+      "date_posted": "past_week",
+      "experience_level": "senior"
+    }
+  },
+  "naukri": {
+    "description": "Naukri.com — India's largest job board, ideal for shipping/logistics roles",
+    "enabled": true,
+    "keywords": [
+      "Branch Manager Shipping Kolkata",
+      "Freight Forwarding Manager Kolkata",
+      "Logistics Manager Kolkata",
+      "Business Development Shipping Kolkata",
+      "Operations Manager Container Kolkata",
+      "Import Export Manager Kolkata",
+      "NVOCC Manager Kolkata",
+      "Shipping Manager Kolkata"
+    ],
+    "max_per_run": 5,
+    "max_pages": 4,
+    "filters": {
+      "experience": "15-40",
+      "sort_by": "date"
+    }
+  },
+  "hirist": {
+    "description": "Hirist.tech — Tech-focused, not primary for shipping roles. Minimal use.",
+    "enabled": false,
+    "keywords": [],
+    "max_per_run": 0,
+    "max_scrolls": 0
+  },
+  "search_delay_ms": 5000,
+  "quick": {
+    "description": "Settings used with --quick flag for smoke tests",
+    "max_per_run": 1,
+    "max_scrolls": 2,
+    "search_delay_ms": 2000
+  }
+}

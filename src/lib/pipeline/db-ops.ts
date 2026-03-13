@@ -304,6 +304,7 @@ function createJobOps(tableName: string, runTableName: string) {
 
 export const jobOps = createJobOps("jobs", "job_runs");
 export const anushaJobOps = createJobOps("anusha_jobs", "anusha_job_runs");
+export const souravJobOps = createJobOps("sourav_jobs", "sourav_job_runs");
 
 // ───── Voyager enrichment DB update ─────
 

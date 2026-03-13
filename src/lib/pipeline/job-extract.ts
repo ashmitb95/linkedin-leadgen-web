@@ -8,6 +8,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { readFileSync } from "fs";
 import path from "path";
+import { repairJson } from "./json-utils";
 
 const CONFIG_DIR = path.resolve(process.cwd(), "config");
 const DEFAULT_PROFILE_PATH = path.join(CONFIG_DIR, "job-profile.json");
@@ -256,7 +257,53 @@ export async function extractAndScoreJobs(
     return [];
   }
 
-  const jobs: ScoredJob[] = JSON.parse(jsonStr.slice(arrayStart, arrayEnd + 1));
+  const rawSlice = jsonStr.slice(arrayStart, arrayEnd + 1);
+  let jobs: ScoredJob[];
+
+  try {
+    jobs = JSON.parse(rawSlice);
+  } catch (parseErr) {
+    console.error(`    JSON parse failed, attempting repair: ${(parseErr as Error).message}`);
+
+    // Try basic repair
+    try {
+      jobs = JSON.parse(repairJson(rawSlice));
+      console.error(`    JSON repair succeeded`);
+    } catch {
+      // Retry via Claude — send broken output back for fixing
+      console.error(`    Repair failed, retrying Claude call...`);
+      try {
+        const retryResponse = await client.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 8192,
+          messages: [
+            {
+              role: "user",
+              content: `${prompt}\n\nSearch keyword: "${keyword}"\n\nBlocks:\n${JSON.stringify(truncatedBlocks, null, 2)}`,
+            },
+            { role: "assistant", content: content.text },
+            {
+              role: "user",
+              content: "Your JSON response was malformed and could not be parsed. Return the SAME data as a valid JSON array. No markdown, no code blocks. Only output the JSON array.",
+            },
+          ],
+        });
+        const retryContent = retryResponse.content[0];
+        if (retryContent.type !== "text") throw new Error("Unexpected retry response type");
+        let retryStr = retryContent.text.trim();
+        const retryCodeMatch = retryStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (retryCodeMatch) retryStr = retryCodeMatch[1].trim();
+        const rStart = retryStr.indexOf("[");
+        const rEnd = retryStr.lastIndexOf("]");
+        if (rStart === -1 || rEnd === -1) throw new Error("No JSON array in retry response");
+        jobs = JSON.parse(retryStr.slice(rStart, rEnd + 1));
+        console.error(`    Retry succeeded`);
+      } catch (retryErr) {
+        console.error(`    Retry also failed: ${(retryErr as Error).message}`);
+        return [];
+      }
+    }
+  }
 
   return jobs
     .map((job) => ({ ...job, keywordMatch: keyword }))

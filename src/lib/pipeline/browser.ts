@@ -118,7 +118,13 @@ export async function verifyLinkedInLogin(page: Page): Promise<void> {
 
 export const CONTENT_SCROLL_AND_EXTRACT = `async () => {
   var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
-  var getHeight = function() { return document.documentElement.scrollHeight; };
+
+  var scrollContainer = document.querySelector('.scaffold-layout__main')
+    || document.querySelector('main')
+    || document.documentElement;
+  var getHeight = function() { return scrollContainer.scrollHeight; };
+
+  await delay(1000);
 
   var prevHeight = 0;
   var scrollCount = 0;
@@ -126,13 +132,13 @@ export const CONTENT_SCROLL_AND_EXTRACT = `async () => {
 
   while (scrollCount < maxScrolls) {
     prevHeight = getHeight();
-    window.scrollTo(0, document.documentElement.scrollHeight);
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
     await delay(2500);
-    if (getHeight() === prevHeight) break;
     scrollCount++;
+    if (getHeight() === prevHeight) break;
   }
 
-  window.scrollTo(0, 0);
+  scrollContainer.scrollTop = 0;
   await delay(500);
 
   var seeMoreBtns = document.querySelectorAll("button");
@@ -198,7 +204,13 @@ export const CONTENT_SCROLL_AND_EXTRACT = `async () => {
 
 export const SALESNAV_SCROLL_AND_EXTRACT = `async () => {
   var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
-  var getHeight = function() { return document.documentElement.scrollHeight; };
+
+  var scrollContainer = document.querySelector('.scaffold-layout__main')
+    || document.querySelector('main')
+    || document.documentElement;
+  var getHeight = function() { return scrollContainer.scrollHeight; };
+
+  await delay(1000);
 
   var prevHeight = 0;
   var scrollCount = 0;
@@ -206,13 +218,13 @@ export const SALESNAV_SCROLL_AND_EXTRACT = `async () => {
 
   while (scrollCount < maxScrolls) {
     prevHeight = getHeight();
-    window.scrollTo(0, document.documentElement.scrollHeight);
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
     await delay(2500);
-    if (getHeight() === prevHeight) break;
     scrollCount++;
+    if (getHeight() === prevHeight) break;
   }
 
-  window.scrollTo(0, 0);
+  scrollContainer.scrollTop = 0;
   await delay(500);
 
   var results = [];
@@ -411,23 +423,13 @@ export function buildJobsExtractJs(maxScrolls: number): string {
 }`;
 }
 
-export function buildNaukriExtractJs(maxScrolls: number): string {
+export function buildNaukriExtractJs(): string {
   return `async () => {
   var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
-  var getHeight = function() { return document.documentElement.scrollHeight; };
 
-  var prevHeight = 0;
-  var scrollCount = 0;
-  var maxScrolls = ${maxScrolls};
-
-  while (scrollCount < maxScrolls) {
-    prevHeight = getHeight();
-    window.scrollTo(0, document.documentElement.scrollHeight);
-    await delay(2000);
-    if (getHeight() === prevHeight) break;
-    scrollCount++;
-  }
-
+  // Naukri is paginated — just scroll down to ensure all cards on this page are visible
+  window.scrollTo(0, document.documentElement.scrollHeight);
+  await delay(1500);
   window.scrollTo(0, 0);
   await delay(500);
 
@@ -474,7 +476,7 @@ export function buildNaukriExtractJs(maxScrolls: number): string {
 
   return JSON.stringify({
     blocks: results,
-    scrolls: scrollCount,
+    scrolls: 0,
     total: results.length
   });
 }`;
@@ -563,10 +565,11 @@ export function buildJobsSearchUrl(keyword: string, filters?: { date_posted?: st
   return url;
 }
 
-export function buildNaukriSearchUrl(keyword: string, filters?: { experience?: string; sort_by?: string }): string {
+export function buildNaukriSearchUrl(keyword: string, filters?: { experience?: string; sort_by?: string }, page?: number): string {
   const exp = filters?.experience || "5-15";
   let url = `https://www.naukri.com/${encodeURIComponent(keyword.toLowerCase().replace(/\s+/g, "-"))}-jobs?k=${encodeURIComponent(keyword)}&experience=${exp}`;
   if (filters?.sort_by === "date") url += "&sortBy=date";
+  if (page && page > 1) url += `&pageNo=${page}`;
   return url;
 }
 
