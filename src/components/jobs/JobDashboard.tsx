@@ -41,7 +41,24 @@ const filterGroups: FilterGroup[] = [
       { label: "Low", value: "low" },
     ],
   },
+  {
+    label: "Sort",
+    key: "sort",
+    options: [
+      { label: "Most Recent", value: "recent" },
+      { label: "Fit Score", value: "fit" },
+    ],
+  },
 ];
+
+function formatDateLabel(dateKey: string): string {
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  if (dateKey === today) return "Today";
+  if (dateKey === yesterday) return "Yesterday";
+  const d = new Date(dateKey + "T00:00:00");
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
 
 interface JobDashboardProps {
   title: string;
@@ -65,6 +82,7 @@ export default function JobDashboard({
     status: "",
     work_mode: "",
     urgency: "",
+    sort: "recent",
   });
 
   const loadStats = useCallback(async () => {
@@ -78,6 +96,7 @@ export default function JobDashboard({
     if (filters.status) params.set("status", filters.status);
     if (filters.work_mode) params.set("work_mode", filters.work_mode);
     if (filters.urgency) params.set("urgency", filters.urgency);
+    if (filters.sort) params.set("sort", filters.sort);
 
     const res = await fetch(`${apiPrefix}?${params}`);
     const data = await res.json();
@@ -100,6 +119,14 @@ export default function JobDashboard({
     if (filters.work_mode) params.set("work_mode", filters.work_mode);
     if (filters.urgency) params.set("urgency", filters.urgency);
     return params.toString();
+  }
+
+  // Group jobs by date
+  const groupedJobs = new Map<string, Job[]>();
+  for (const job of jobs) {
+    const dateKey = job.found_at ? job.found_at.split("T")[0] : "Unknown";
+    if (!groupedJobs.has(dateKey)) groupedJobs.set(dateKey, []);
+    groupedJobs.get(dateKey)!.push(job);
   }
 
   const statsItems = stats
@@ -142,13 +169,23 @@ export default function JobDashboard({
             <div style={{ color: "#71717a", fontSize: 14 }}>Run the job search pipeline to find jobs, or adjust your filters.</div>
           </div>
         ) : (
-          jobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              apiPrefix={apiPrefix}
-              onStatusChange={() => { loadStats(); }}
-            />
+          Array.from(groupedJobs.entries()).map(([dateKey, dateJobs]) => (
+            <div key={dateKey}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#818cf8", padding: "16px 0 8px", marginTop: 8 }}>
+                {formatDateLabel(dateKey)}
+                <span style={{ fontSize: 12, fontWeight: 400, color: "#71717a", marginLeft: 8 }}>{dateJobs.length}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {dateJobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    apiPrefix={apiPrefix}
+                    onStatusChange={() => { loadStats(); }}
+                  />
+                ))}
+              </div>
+            </div>
           ))
         )}
       </div>

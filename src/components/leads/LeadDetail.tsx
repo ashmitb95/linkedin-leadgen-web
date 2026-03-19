@@ -37,7 +37,7 @@ export default function LeadDetail({
   const contentLabel = isSalesNav ? "Profile Context" : "Post Content";
   const relevancePct = Math.round(lead.relevance * 100);
   const staleness = getStaleness(lead.post_date);
-  const foundDate = lead.found_at ? new Date(lead.found_at).toLocaleDateString() : "";
+  const foundDate = lead.found_at ? new Date(lead.found_at).toLocaleDateString("en-IN") : "";
 
   // Determine which profile URL to show
   const publicUrl = lead.public_profile_url ? absUrl(lead.public_profile_url) : "";

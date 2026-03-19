@@ -16,8 +16,13 @@ function createJobQueries(tableName: string, runTableName: string) {
     const limit = filters.limit || 100;
     const offset = filters.offset || 0;
 
+    const orderBy =
+      filters.sort === "recent"
+        ? "ORDER BY found_at DESC, fit_score DESC"
+        : "ORDER BY fit_score DESC, found_at DESC";
+
     const result = await db.execute({
-      sql: `SELECT * FROM ${tableName} ${where} ORDER BY fit_score DESC, found_at DESC LIMIT ? OFFSET ?`,
+      sql: `SELECT * FROM ${tableName} ${where} ${orderBy} LIMIT ? OFFSET ?`,
       args: [...args, limit, offset],
     });
 

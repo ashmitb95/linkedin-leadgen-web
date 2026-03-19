@@ -37,7 +37,7 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
   const descSnippet = job.job_description
     ? job.job_description.slice(0, 160) + (job.job_description.length > 160 ? "..." : "")
     : "";
-  const foundDate = job.found_at ? new Date(job.found_at).toLocaleDateString() : "";
+  const foundDate = job.found_at ? new Date(job.found_at).toLocaleDateString("en-IN") : "";
 
   async function updateStatus(newStatus: string) {
     const prevStatus = status;

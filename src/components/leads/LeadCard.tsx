@@ -29,7 +29,7 @@ export default function LeadCard({
     ? lead.post_content.slice(0, 300) + (lead.post_content.length > 300 ? "..." : "")
     : null;
   const relevancePct = Math.round(lead.relevance * 100);
-  const foundDate = lead.found_at ? new Date(lead.found_at).toLocaleDateString() : "";
+  const foundDate = lead.found_at ? new Date(lead.found_at).toLocaleDateString("en-IN") : "";
   const staleness = getStaleness(lead.post_date);
 
   async function updateStatus(status: string) {

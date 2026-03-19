@@ -87,6 +87,7 @@ export interface JobFilters {
   work_mode?: string;
   urgency?: string;
   min_fit?: number;
+  sort?: "recent" | "fit";
   limit?: number;
   offset?: number;
 }

@@ -396,7 +396,7 @@ function buildColumnDefs(narrow: boolean): ColDef[] {
       minWidth: 90,
       valueFormatter: (params) => {
         if (!params.value) return "";
-        return new Date(params.value).toLocaleDateString();
+        return new Date(params.value).toLocaleDateString("en-IN");
       },
       sortable: true,
     },
