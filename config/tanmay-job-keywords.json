@@ -1,0 +1,81 @@
+{
+  "content_search": {
+    "description": "LinkedIn content search — finds posts where people/companies announce hiring for Senior Frontend/Fullstack roles in Bangalore/Bengaluru or remote",
+    "keywords": [
+      "hiring senior frontend engineer react bangalore",
+      "hiring senior frontend engineer react remote",
+      "hiring senior software engineer typescript bangalore",
+      "hiring senior react developer remote",
+      "hiring lead frontend engineer bangalore",
+      "hiring senior next.js developer remote",
+      "hiring senior full stack engineer react bangalore",
+      "hiring senior software engineer typescript remote",
+      "startup hiring senior frontend developer bangalore",
+      "hiring staff frontend engineer remote",
+      "we are hiring react typescript engineer bengaluru",
+      "hiring frontend architect react remote",
+      "senior frontend engineer typescript node bangalore",
+      "open position senior frontend engineer remote",
+      "engineering team growing hiring senior frontend"
+    ],
+    "max_per_run": 8,
+    "max_scrolls": 6
+  },
+  "jobs_search": {
+    "description": "LinkedIn Jobs search — structured job listings for Senior Frontend/Fullstack roles in Bangalore or remote",
+    "keywords": [
+      "Senior Frontend Engineer React Bangalore",
+      "Senior Frontend Engineer React",
+      "Senior Software Engineer TypeScript Bangalore",
+      "Lead Frontend Engineer Next.js",
+      "Senior Full Stack Engineer React Node Bangalore",
+      "Senior React Developer TypeScript"
+    ],
+    "max_per_run": 4,
+    "max_scrolls": 8,
+    "filters": {
+      "date_posted": "past_week",
+      "experience_level": "senior"
+    }
+  },
+  "naukri": {
+    "description": "Naukri.com — India's largest job board",
+    "enabled": true,
+    "keywords": [
+      "Senior Frontend Engineer React",
+      "Senior Software Engineer TypeScript",
+      "Lead Frontend Engineer",
+      "Senior React Developer",
+      "Senior Full Stack Developer React Node",
+      "Senior Next.js Developer"
+    ],
+    "max_per_run": 4,
+    "max_scrolls": 4,
+    "filters": {
+      "experience": "5-12",
+      "location": "Bengaluru",
+      "sort_by": "date"
+    }
+  },
+  "hirist": {
+    "description": "Hirist.tech — Tech-focused job board for India. Keywords are category slugs from hirist.tech/c/",
+    "enabled": true,
+    "keywords": [
+      "frontend-development-jobs",
+      "full-stack-jobs",
+      "react-jobs",
+      "nodejs-jobs",
+      "javascript-jobs",
+      "next-js-jobs"
+    ],
+    "max_per_run": 3,
+    "max_scrolls": 3
+  },
+  "search_delay_ms": 5000,
+  "quick": {
+    "description": "Settings used with --quick flag for smoke tests",
+    "max_per_run": 1,
+    "max_scrolls": 2,
+    "search_delay_ms": 2000
+  }
+}

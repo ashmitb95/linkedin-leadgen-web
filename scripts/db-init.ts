@@ -251,6 +251,66 @@ async function main() {
   for (const sql of souravIndices) await db.execute(sql);
   console.log("  sourav_jobs indices: OK");
 
+  // ───── Tanmay Jobs tables ─────
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS tanmay_jobs (
+      id              TEXT PRIMARY KEY,
+      dedup_key       TEXT UNIQUE NOT NULL,
+      source          TEXT NOT NULL DEFAULT 'content',
+      title           TEXT NOT NULL DEFAULT '',
+      company         TEXT DEFAULT '',
+      location        TEXT DEFAULT '',
+      work_mode       TEXT NOT NULL DEFAULT 'unknown',
+      salary_range    TEXT,
+      job_url         TEXT DEFAULT '',
+      apply_url       TEXT DEFAULT '',
+      job_description TEXT DEFAULT '',
+      recruiter_name  TEXT DEFAULT '',
+      recruiter_email TEXT DEFAULT '',
+      recruiter_url   TEXT DEFAULT '',
+      poster_name     TEXT DEFAULT '',
+      poster_headline TEXT DEFAULT '',
+      poster_url      TEXT DEFAULT '',
+      post_content    TEXT DEFAULT '',
+      post_url        TEXT DEFAULT '',
+      fit_score       REAL NOT NULL DEFAULT 0.0,
+      stack_match     REAL NOT NULL DEFAULT 0.0,
+      seniority_match TEXT NOT NULL DEFAULT 'unknown',
+      urgency         TEXT NOT NULL DEFAULT 'low',
+      reasoning       TEXT DEFAULT '',
+      draft_message   TEXT DEFAULT '',
+      keyword_match   TEXT DEFAULT '',
+      status          TEXT NOT NULL DEFAULT 'new',
+      notes           TEXT DEFAULT '',
+      found_at        TEXT NOT NULL,
+      updated_at      TEXT NOT NULL
+    )
+  `);
+  console.log("  tanmay_jobs table: OK");
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS tanmay_job_runs (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      started_at      TEXT NOT NULL,
+      completed_at    TEXT,
+      searches_run    INTEGER NOT NULL DEFAULT 0,
+      jobs_found      INTEGER NOT NULL DEFAULT 0,
+      jobs_new        INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+  console.log("  tanmay_job_runs table: OK");
+
+  const tanmayIndices = [
+    "CREATE INDEX IF NOT EXISTS idx_tanmay_jobs_status ON tanmay_jobs(status)",
+    "CREATE INDEX IF NOT EXISTS idx_tanmay_jobs_fit_score ON tanmay_jobs(fit_score)",
+    "CREATE INDEX IF NOT EXISTS idx_tanmay_jobs_source ON tanmay_jobs(source)",
+    "CREATE INDEX IF NOT EXISTS idx_tanmay_jobs_found_at ON tanmay_jobs(found_at)",
+    "CREATE INDEX IF NOT EXISTS idx_tanmay_jobs_work_mode ON tanmay_jobs(work_mode)",
+  ];
+  for (const sql of tanmayIndices) await db.execute(sql);
+  console.log("  tanmay_jobs indices: OK");
+
   // ───── Migrations (safe ALTERs for existing DBs) ─────
 
   console.log("\nRunning migrations...");

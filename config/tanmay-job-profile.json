@@ -1,0 +1,35 @@
+{
+  "name": "Tanmay",
+  "years_of_experience": 6,
+  "education": "B.Tech in Computer Science & Engineering (SRM University), PG-DAC (CDAC ACTS)",
+  "domain": ["Frontend Engineering", "Full Stack Engineering", "AI-Powered Applications", "E-Commerce Analytics", "Legal Tech", "Enterprise SaaS"],
+  "skills": {
+    "primary": ["React.js", "Next.js", "TypeScript", "Node.js", "Redux Toolkit", "Zustand", "TanStack Query", "Tailwind CSS"],
+    "secondary": ["JavaScript", "React Native", "GraphQL", "PostgreSQL", "MongoDB", "D3.js", "Framer Motion", "GSAP", "Storybook", "Jest", "Playwright", "Docker", "AWS", "GCP", "Vercel", "Turborepo", "Vite", "Webpack", "Auth0", "RBAC", "Office Add-ins", "AG Grid", "Recharts", "Material UI", "Shadcn UI"]
+  },
+  "target_roles": [
+    "Senior Frontend Engineer",
+    "Senior Software Engineer (Frontend)",
+    "Staff Frontend Engineer",
+    "Lead Frontend Engineer",
+    "Senior Full Stack Engineer",
+    "Senior React Engineer",
+    "Senior TypeScript Engineer",
+    "Frontend Architect",
+    "Engineering Manager (Frontend)",
+    "Senior Software Engineer"
+  ],
+  "seniority_range": ["Senior", "Lead", "Staff", "Principal"],
+  "location": {
+    "country": "India",
+    "eligible_for": ["India", "Remote (Global)", "Remote (India)", "Remote (APAC)"],
+    "preferred_cities": ["Bangalore", "Hyderabad", "Pune", "Mumbai", "Delhi NCR", "Chennai"],
+    "notes": "Must be hiring in India OR remote-eligible for India-based candidates. Skip jobs restricted to US/EU/UK only."
+  },
+  "work_preferences": {
+    "remote_ok": true,
+    "hybrid_ok": true,
+    "onsite_ok": true,
+    "onsite_cities": ["Bangalore"]
+  }
+}

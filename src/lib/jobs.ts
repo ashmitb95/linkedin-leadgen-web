@@ -173,3 +173,4 @@ function createJobQueries(tableName: string, runTableName: string) {
 export const jobsDb = createJobQueries("jobs", "job_runs");
 export const anushaJobsDb = createJobQueries("anusha_jobs", "anusha_job_runs");
 export const souravJobsDb = createJobQueries("sourav_jobs", "sourav_job_runs");
+export const tanmayJobsDb = createJobQueries("tanmay_jobs", "tanmay_job_runs");

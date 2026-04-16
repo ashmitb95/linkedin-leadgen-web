@@ -19,6 +19,7 @@ const roles: Record<string, UserRole> = {
       { href: "/jobs", label: "Job Search" },
       { href: "/anusha", label: "Anusha's Jobs" },
       { href: "/sourav", label: "Sourav's Jobs" },
+      { href: "/tanmay", label: "Tanmay's Jobs" },
     ],
     api: ["/api/"],
     default: "/",
@@ -36,6 +37,13 @@ const roles: Record<string, UserRole> = {
     ],
     api: ["/api/sourav-job", "/api/auth/"],
     default: "/sourav",
+  },
+  tanmay: {
+    pages: [
+      { href: "/tanmay", label: "My Jobs" },
+    ],
+    api: ["/api/tanmay-job", "/api/auth/"],
+    default: "/tanmay",
   },
   siddhartha: {
     pages: [

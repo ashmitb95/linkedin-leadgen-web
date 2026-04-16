@@ -24,6 +24,11 @@
     "sourav:run:quick": "npx tsx scripts/sourav-job-run.ts --quick",
     "sourav:run:linkedin": "npx tsx scripts/sourav-job-run.ts --linkedin-only",
     "sourav:run:naukri": "npx tsx scripts/sourav-job-run.ts --naukri-only",
+    "tanmay:run": "npx tsx scripts/tanmay-job-run.ts",
+    "tanmay:run:quick": "npx tsx scripts/tanmay-job-run.ts --quick",
+    "tanmay:run:linkedin": "npx tsx scripts/tanmay-job-run.ts --linkedin-only",
+    "tanmay:run:naukri": "npx tsx scripts/tanmay-job-run.ts --naukri-only",
+    "tanmay:run:hirist": "npx tsx scripts/tanmay-job-run.ts --hirist-only",
     "rescore": "npx tsx scripts/rescore.ts"
   },
   "dependencies": {
