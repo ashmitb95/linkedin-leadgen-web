@@ -14,6 +14,8 @@
  *   npx tsx scripts/anusha-job-run.ts --hirist-only      # Only Hirist.tech
  *   npx tsx scripts/anusha-job-run.ts --boards-only      # Only Naukri + Hirist
  *   npx tsx scripts/anusha-job-run.ts --linkedin-only    # Only LinkedIn
+ *   npx tsx scripts/anusha-job-run.ts --location Bengaluru   # Restrict to one city
+ *   npx tsx scripts/anusha-job-run.ts --fresh            # LinkedIn jobs: last 24h only
  */
 
 import { loadEnv } from "../src/lib/pipeline/env";
@@ -188,6 +190,9 @@ async function main() {
   const scrollsOverride = scrollsIdx >= 0 ? Number(args[scrollsIdx + 1]) : undefined;
   const singleKeywordIdx = args.indexOf("--keyword");
   const singleKeyword = singleKeywordIdx >= 0 ? args[singleKeywordIdx + 1] : null;
+  const locationIdx = args.indexOf("--location");
+  const location = locationIdx >= 0 ? args[locationIdx + 1] : null; // e.g. "Bengaluru"
+  const fresh = args.includes("--fresh"); // tighten LinkedIn jobs to the last 24h
   const contentOnly = args.includes("--content-only");
   const jobsOnly = args.includes("--jobs-only");
   const naukriOnly = args.includes("--naukri-only");
@@ -228,14 +233,20 @@ async function main() {
       const contentKeywords = config.content_search?.keywords || [];
       const contentMax = maxSearches || (quick ? (quickCfg.max_per_run || 1) : null) || config.content_search?.max_per_run || 8;
       for (const kw of contentKeywords.slice(0, contentMax)) {
-        searchJobs.push({ keyword: kw, mode: "content", url: buildContentSearchUrl(kw), extractJs: contentExtractJs });
+        // Content feed has no geo param — fold the city into the query.
+        const q = location ? `${kw} ${location}` : kw;
+        searchJobs.push({ keyword: q, mode: "content", url: buildContentSearchUrl(q), extractJs: contentExtractJs });
       }
     }
 
     if (runLinkedin && (!singleSource || jobsOnly)) {
       const jobsKeywords = config.jobs_search?.keywords || [];
       const jobsMax = maxSearches || (quick ? (quickCfg.max_per_run || 1) : null) || config.jobs_search?.max_per_run || 4;
-      const filters = config.jobs_search?.filters;
+      const filters = {
+        ...config.jobs_search?.filters,
+        ...(location ? { location } : {}),
+        ...(fresh ? { date_posted: "past_24h" } : {}),
+      };
       for (const kw of jobsKeywords.slice(0, jobsMax)) {
         searchJobs.push({ keyword: kw, mode: "jobs", url: buildJobsSearchUrl(kw, filters), extractJs: jobsExtractJs });
       }
@@ -245,7 +256,7 @@ async function main() {
     if (runBoards && (!singleSource || naukriOnly) && config.naukri?.enabled !== false) {
       const naukriKeywords = config.naukri?.keywords || [];
       const naukriMax = maxSearches || (quick ? (quickCfg.max_per_run || 1) : null) || config.naukri?.max_per_run || 4;
-      const naukriFilters = config.naukri?.filters;
+      const naukriFilters = { ...config.naukri?.filters, ...(location ? { location } : {}) };
       for (const kw of naukriKeywords.slice(0, naukriMax)) {
         for (let pg = 1; pg <= naukriPages; pg++) {
           searchJobs.push({

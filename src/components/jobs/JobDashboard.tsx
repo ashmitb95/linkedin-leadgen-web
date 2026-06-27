@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Job, JobStats } from "@/lib/schema";
 import StatsBar from "@/components/StatsBar";
 import FilterBar, { type FilterGroup } from "@/components/FilterBar";
 import JobCard from "@/components/jobs/JobCard";
+import LocationFilter, { type LocationOption } from "@/components/jobs/LocationFilter";
+import { canonicalizeLocation } from "@/lib/location";
 
 const filterGroups: FilterGroup[] = [
   {
@@ -81,6 +83,7 @@ export default function JobDashboard({
   const [stats, setStats] = useState<JobStats | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLocations, setSelectedLocations] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({
     status: "",
     work_mode: "",
@@ -144,9 +147,47 @@ export default function JobDashboard({
     return params.toString();
   }
 
+  // Location multi-select — options derived from the loaded results, grouped
+  // by canonical city (Bangalore/Bengaluru → one), with counts.
+  const locationOptions: LocationOption[] = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const j of jobs) {
+      const loc = canonicalizeLocation(j.location);
+      counts.set(loc, (counts.get(loc) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => {
+        const aEnd = a.value === "Not specified";
+        const bEnd = b.value === "Not specified";
+        if (aEnd !== bEnd) return aEnd ? 1 : -1;
+        return b.count - a.count || a.value.localeCompare(b.value);
+      });
+  }, [jobs]);
+
+  const optionValues = useMemo(() => new Set(locationOptions.map((o) => o.value)), [locationOptions]);
+  // Only apply selections that still exist in the current result set.
+  const activeLocations = useMemo(
+    () => new Set([...selectedLocations].filter((v) => optionValues.has(v))),
+    [selectedLocations, optionValues],
+  );
+
+  function toggleLocation(value: string) {
+    setSelectedLocations((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  }
+
+  const filteredJobs = activeLocations.size
+    ? jobs.filter((j) => activeLocations.has(canonicalizeLocation(j.location)))
+    : jobs;
+
   // Group jobs by date
   const groupedJobs = new Map<string, Job[]>();
-  for (const job of jobs) {
+  for (const job of filteredJobs) {
     const dateKey = job.found_at ? job.found_at.split("T")[0] : "Unknown";
     if (!groupedJobs.has(dateKey)) groupedJobs.set(dateKey, []);
     groupedJobs.get(dateKey)!.push(job);
@@ -182,11 +223,18 @@ export default function JobDashboard({
 
       <FilterBar groups={activeGroups} current={filters} onChange={handleFilterChange} />
 
+      <LocationFilter
+        options={locationOptions}
+        selected={activeLocations}
+        onToggle={toggleLocation}
+        onClear={() => setSelectedLocations(new Set())}
+      />
+
       {/* Job list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 0", color: "#71717a", fontSize: 14 }}>Loading jobs...</div>
-        ) : jobs.length === 0 ? (
+        ) : filteredJobs.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "#fafafa" }}>No jobs found</div>
             <div style={{ color: "#71717a", fontSize: 14 }}>Run the job search pipeline to find jobs, or adjust your filters.</div>

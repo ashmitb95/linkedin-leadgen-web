@@ -557,18 +557,25 @@ export function buildSalesNavSearchUrl(keyword: string): string {
   return `https://www.linkedin.com/sales/search/people?query=(keywords%3A${encodeURIComponent(keyword)})`;
 }
 
-export function buildJobsSearchUrl(keyword: string, filters?: { date_posted?: string; experience_level?: string; remote?: boolean }): string {
+export function buildJobsSearchUrl(keyword: string, filters?: { date_posted?: string; experience_level?: string; remote?: boolean; location?: string }): string {
   let url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(keyword)}`;
-  if (filters?.date_posted === "past_week") url += "&f_TPR=r604800";
+  if (filters?.location) url += `&location=${encodeURIComponent(filters.location)}`;
+  if (filters?.date_posted === "past_24h") url += "&f_TPR=r86400";
+  else if (filters?.date_posted === "past_week") url += "&f_TPR=r604800";
   if (filters?.experience_level === "senior") url += "&f_E=4";
   else if (filters?.experience_level === "associate") url += "&f_E=3%2C4"; // associate + mid-senior (skips fresher/entry)
   if (filters?.remote) url += "&f_WT=2";
   return url;
 }
 
-export function buildNaukriSearchUrl(keyword: string, filters?: { experience?: string; sort_by?: string }, page?: number): string {
+export function buildNaukriSearchUrl(keyword: string, filters?: { experience?: string; sort_by?: string; location?: string }, page?: number): string {
   const exp = filters?.experience || "5-15";
-  let url = `https://www.naukri.com/${encodeURIComponent(keyword.toLowerCase().replace(/\s+/g, "-"))}-jobs?k=${encodeURIComponent(keyword)}&experience=${exp}`;
+  const slug = encodeURIComponent(keyword.toLowerCase().replace(/\s+/g, "-"));
+  const locSlug = filters?.location
+    ? `-in-${encodeURIComponent(filters.location.toLowerCase().replace(/\s+/g, "-"))}`
+    : "";
+  let url = `https://www.naukri.com/${slug}-jobs${locSlug}?k=${encodeURIComponent(keyword)}&experience=${exp}`;
+  if (filters?.location) url += `&location=${encodeURIComponent(filters.location)}`;
   if (filters?.sort_by === "date") url += "&sortBy=date";
   if (page && page > 1) url += `&pageNo=${page}`;
   return url;
