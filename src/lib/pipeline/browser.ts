@@ -561,6 +561,7 @@ export function buildJobsSearchUrl(keyword: string, filters?: { date_posted?: st
   let url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(keyword)}`;
   if (filters?.date_posted === "past_week") url += "&f_TPR=r604800";
   if (filters?.experience_level === "senior") url += "&f_E=4";
+  else if (filters?.experience_level === "associate") url += "&f_E=3%2C4"; // associate + mid-senior (skips fresher/entry)
   if (filters?.remote) url += "&f_WT=2";
   return url;
 }

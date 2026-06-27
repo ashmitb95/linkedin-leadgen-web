@@ -47,6 +47,9 @@ export interface Job {
   reasoning: string;
   draft_message: string;
   keyword_match: string;
+  domain: string;
+  domain_match: number;
+  score_breakdown: string;
   status: string;
   notes: string;
   found_at: string;
@@ -87,7 +90,8 @@ export interface JobFilters {
   work_mode?: string;
   urgency?: string;
   min_fit?: number;
-  sort?: "recent" | "fit";
+  domain?: string;
+  sort?: "recent" | "fit" | "domain";
   limit?: number;
   offset?: number;
 }

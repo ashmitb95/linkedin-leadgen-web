@@ -43,7 +43,77 @@ export interface ScoredJob {
   urgency: "high" | "medium" | "low";
   reasoning: string;
   draftMessage: string;
+  domain: string;
+  domainMatch: number;
   keywordMatch: string;
+  // Enhanced (opt-in) breakdown — present only when scored in enhanced mode.
+  domainFit?: number;
+  roleFit?: number;
+  seniorityFit?: number;
+  locationFit?: number;
+  mustHaves?: { requirement: string; met: boolean }[];
+  gaps?: string[];
+}
+
+export interface ScoreOptions {
+  /** Use the decomposed rubric and compute a calibrated fitScore from sub-scores. */
+  enhanced?: boolean;
+  /** Full résumé text to ground scoring against real experience (not just the JSON profile). */
+  resumeText?: string;
+}
+
+const clamp01 = (n: number) => (typeof n === "number" && !Number.isNaN(n) ? Math.max(0, Math.min(1, n)) : 0);
+
+/**
+ * Extra instructions appended in enhanced mode: ask the model for explainable
+ * sub-scores + a requirements checklist instead of a single opaque number.
+ */
+function enhancedScoringBlock(): string {
+  return `ADDITIONAL SCORING — for EACH job object, ALSO include these fields. They are used to compute a calibrated, explainable fit score, so be honest and specific:
+- **domainFit** (0.0-1.0): How well the role's industry/domain matches the candidate's target domains.
+- **roleFit** (0.0-1.0): How well the job title and core responsibilities match the candidate's target roles and actual experience.
+- **seniorityFit** (0.0-1.0): How well the role's level / experience requirement matches the candidate's seniority.
+- **locationFit** (0.0-1.0): 1.0 if clearly eligible/located for the candidate, lower if uncertain, 0.0 if ineligible.
+- **mustHaves**: An array of the job's 4-6 most important requirements. Each item is { "requirement": "<short phrase>", "met": true|false }, judged against the candidate's résumé/profile. Mark met:false when the evidence is genuinely absent — do not be generous.
+- **gaps**: An array of short strings naming the most important UNMET requirements. [] if none.
+- **reasoning**: 1-2 plain-language sentences a non-technical person can read. Name one concrete strength and the main gap. No jargon.
+
+Still return ONLY a valid JSON array. No markdown, no code blocks.`;
+}
+
+/**
+ * Normalize and attach the enhanced breakdown for display. Leaves fitScore and
+ * stackMatch exactly as the model returned them (no weighted recompute).
+ */
+function attachBreakdown(job: ScoredJob): ScoredJob {
+  const mustHaves = Array.isArray(job.mustHaves)
+    ? job.mustHaves.filter((m) => m && typeof m.requirement === "string")
+    : [];
+  return {
+    ...job,
+    domainFit: clamp01(job.domainFit ?? job.domainMatch ?? 0),
+    roleFit: clamp01(job.roleFit ?? 0),
+    seniorityFit: clamp01(job.seniorityFit ?? 0),
+    locationFit: clamp01(job.locationFit ?? 1),
+    mustHaves,
+    gaps: Array.isArray(job.gaps) ? job.gaps : [],
+  };
+}
+
+/**
+ * Domain classification instructions, injected into every scoring prompt.
+ * When the profile lists target domains, constrain output to that set (plus
+ * "Adjacent" / "Off-domain") so the dashboard can reliably filter on it.
+ */
+function domainInstructions(profile: any): string {
+  const domains: string[] = Array.isArray(profile.domain) ? profile.domain : [];
+  if (domains.length > 0) {
+    const list = domains.map((d) => `"${d}"`).join(", ");
+    return `- **domain**: The role's industry vertical. Pick the SINGLE best match from this exact list: ${list}. Use "Adjacent" if related but not core, or "Off-domain" if unrelated to these fields. Return one of these exact strings.
+- **domainMatch** (0.0-1.0): How closely the role's industry aligns with the candidate's target domains. 1.0 = core domain from the list, ~0.5 = adjacent, 0.0 = unrelated.`;
+  }
+  return `- **domain**: The role's industry vertical in 1-3 words (e.g. "Fintech", "Healthcare", "E-commerce", "SaaS").
+- **domainMatch** (0.0-1.0): How closely the role's domain aligns with the candidate's background.`;
 }
 
 function buildHiringPostPrompt(profile: any): string {
@@ -82,6 +152,7 @@ Then score each job against the candidate profile:
 - **urgency**: "high" (urgently hiring, immediate start, few applicants), "medium" (standard), "low" (vague or future)
 - **reasoning**: One sentence explaining the score. Mention location eligibility.
 - **draftMessage**: Personalized 3-4 sentence DM to the poster expressing interest. Reference their post, mention relevant experience briefly, professional tone.
+${domainInstructions(profile)}
 
 LOCATION FILTER — CRITICAL:
 The candidate is based in India. ONLY include jobs that are:
@@ -139,6 +210,7 @@ Score each job against the candidate profile:
 - **urgency**: "high" (posted today/yesterday, "Actively recruiting"), "medium" (this week), "low" (older)
 - **reasoning**: One sentence. Mention location eligibility.
 - **draftMessage**: "" (no DM for job listings — user applies directly)
+${domainInstructions(profile)}
 
 LOCATION FILTER — CRITICAL:
 The candidate is based in India. ONLY include jobs that are:
@@ -188,6 +260,7 @@ Score each job against the candidate profile:
 - **urgency**: "high" (posted today/yesterday, "few applicants"), "medium" (this week), "low" (older)
 - **reasoning**: One sentence
 - **draftMessage**: "" (direct apply on these boards)
+${domainInstructions(profile)}
 
 All jobs on these boards are India-based, so no location filtering needed. Skip only:
 - Roles requiring skills/domain knowledge the candidate has zero experience with
@@ -203,6 +276,7 @@ export async function extractAndScoreJobs(
   keyword: string,
   mode: "content" | "jobs" | "naukri" | "hirist" = "content",
   profileOverride?: any,
+  options: ScoreOptions = {},
 ): Promise<ScoredJob[]> {
   const profile = profileOverride || defaultProfile;
 
@@ -223,23 +297,24 @@ export async function extractAndScoreJobs(
   console.error(`Processing ${blocks.length} job blocks (${mode} mode)...`);
 
   const truncatedBlocks = blocks.slice(0, 30);
-  const prompt = mode === "naukri" || mode === "hirist"
+  const basePrompt = mode === "naukri" || mode === "hirist"
     ? buildJobBoardPrompt(profile)
     : mode === "jobs"
       ? buildJobListingPrompt(profile)
       : buildHiringPostPrompt(profile);
+
+  const prompt = options.enhanced ? `${basePrompt}\n\n${enhancedScoringBlock()}` : basePrompt;
+  const resumeBlock = options.resumeText && options.resumeText.trim()
+    ? `CANDIDATE RÉSUMÉ (source of truth — judge each requirement against these real lines, not just the profile summary):\n${options.resumeText.trim()}\n\n`
+    : "";
+  const userContent = `${prompt}\n\n${resumeBlock}Search keyword: "${keyword}"\n\nBlocks:\n${JSON.stringify(truncatedBlocks, null, 2)}`;
 
   const client = new Anthropic();
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 8192,
-    messages: [
-      {
-        role: "user",
-        content: `${prompt}\n\nSearch keyword: "${keyword}"\n\nBlocks:\n${JSON.stringify(truncatedBlocks, null, 2)}`,
-      },
-    ],
+    messages: [{ role: "user", content: userContent }],
   });
 
   const content = response.content[0];
@@ -277,10 +352,7 @@ export async function extractAndScoreJobs(
           model: "claude-sonnet-4-6",
           max_tokens: 8192,
           messages: [
-            {
-              role: "user",
-              content: `${prompt}\n\nSearch keyword: "${keyword}"\n\nBlocks:\n${JSON.stringify(truncatedBlocks, null, 2)}`,
-            },
+            { role: "user", content: userContent },
             { role: "assistant", content: content.text },
             {
               role: "user",
@@ -305,7 +377,13 @@ export async function extractAndScoreJobs(
     }
   }
 
-  return jobs
-    .map((job) => ({ ...job, keywordMatch: keyword }))
-    .filter((job) => job.fitScore >= 0.3);
+  const scored = jobs.map((job) => ({
+    ...job,
+    keywordMatch: keyword,
+    domain: job.domain || "",
+    domainMatch: typeof job.domainMatch === "number" ? job.domainMatch : 0,
+  }));
+
+  const finalized = options.enhanced ? scored.map(attachBreakdown) : scored;
+  return finalized.filter((job) => job.fitScore >= 0.3);
 }

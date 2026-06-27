@@ -1,35 +1,36 @@
 {
   "name": "Anusha",
   "years_of_experience": 4,
-  "education": "MBA in Life Sciences",
+  "education": "MBA in Life Science Engineering",
   "domain": ["Life Sciences", "Pharma", "Biotech", "Healthcare", "MedTech"],
   "skills": {
-    "primary": ["Business Development", "Strategic Planning", "Market Analysis", "Product Management", "Brand Management"],
-    "secondary": ["Regulatory Awareness", "Clinical Research Knowledge", "Healthcare Consulting", "Key Account Management", "Medical Affairs Coordination", "Pharmaceutical Marketing"]
+    "primary": ["Market Intelligence", "Competitive Intelligence", "Strategic Analysis", "Business Development", "Corporate Financial Analysis"],
+    "secondary": ["Market Research", "Competitive Benchmarking", "Scenario Planning", "TAM-SAM-SOM", "ICP Development", "PESTEL", "Porter's Five Forces", "Geopolitical Risk Assessment", "CDMO/CMO Sector", "Regulatory Affairs (ICH/WHO/FDA)"]
   },
   "target_roles": [
-    "Business Development Manager",
-    "Product Manager - Pharma",
-    "Brand Manager - Healthcare",
-    "Strategy Consultant - Life Sciences",
-    "BD Manager - Biotech",
-    "Healthcare Consultant",
-    "Licensing & Partnerships Manager",
-    "Marketing Manager - Pharma",
-    "Associate Director - Commercial",
-    "Medical Science Liaison"
+    "Market Intelligence Analyst",
+    "Competitive Intelligence Analyst",
+    "Strategy Analyst",
+    "Business Development Analyst",
+    "Business Development Associate",
+    "Corporate Strategy Analyst",
+    "Commercial Analyst - Life Sciences",
+    "Market Research Analyst - Pharma",
+    "Insights Analyst - Healthcare",
+    "CDMO/CMO Business Analyst"
   ],
-  "seniority_range": ["Manager", "Senior Manager", "Associate Director"],
+  "seniority_range": ["Analyst", "Associate", "Senior Analyst", "Specialist"],
   "location": {
     "country": "India",
     "eligible_for": ["India", "Remote (Global)", "Remote (India)", "Remote (APAC)"],
-    "preferred_cities": ["Bangalore", "Mumbai", "Hyderabad", "Pune", "Delhi NCR", "Chennai"],
-    "notes": "Must be hiring in India OR remote-eligible for India-based candidates. Skip jobs restricted to US/EU/UK only."
+    "preferred_cities": ["Delhi NCR", "Bangalore", "Mumbai", "Hyderabad", "Pune", "Chennai"],
+    "notes": "Based in New Delhi. Must be hiring in India OR remote-eligible for India-based candidates. Skip jobs restricted to US/EU/UK only."
   },
   "work_preferences": {
     "remote_ok": true,
     "hybrid_ok": true,
     "onsite_ok": true,
-    "onsite_cities": ["Bangalore", "Mumbai", "Hyderabad"]
-  }
+    "onsite_cities": ["Delhi NCR", "Bangalore", "Mumbai", "Hyderabad"]
+  },
+  "notes": "Re-entering after MBA (Life Science Engineering, HTW Berlin). Strongest in market/competitive intelligence, strategy frameworks (PESTEL, Porter's, TAM-SAM-SOM, ICP), CDMO/CMO competitive benchmarking, and corporate financial analysis, backed by 4 yrs vaccine QC/regulatory at Bharat Biotech. Target is analyst/associate level — NOT manager/AD, brand management, or MSL roles."
 }

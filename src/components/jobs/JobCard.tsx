@@ -39,6 +39,31 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
     : "";
   const foundDate = job.found_at ? new Date(job.found_at).toLocaleDateString("en-IN") : "";
 
+  let breakdown: {
+    domainFit?: number;
+    roleFit?: number;
+    seniorityFit?: number;
+    locationFit?: number;
+    mustHaves?: { requirement: string; met: boolean }[];
+    gaps?: string[];
+  } | null = null;
+  try {
+    breakdown = job.score_breakdown ? JSON.parse(job.score_breakdown) : null;
+  } catch {
+    breakdown = null;
+  }
+  const subScores = breakdown
+    ? ([
+        ["Domain", breakdown.domainFit],
+        ["Role", breakdown.roleFit],
+        ["Seniority", breakdown.seniorityFit],
+        ["Location", breakdown.locationFit],
+      ].filter(([, v]) => typeof v === "number") as [string, number][])
+    : [];
+  const mustHaves = breakdown?.mustHaves?.filter((m) => m && m.requirement) || [];
+  const gaps = breakdown?.gaps?.filter(Boolean) || [];
+  const hasBreakdown = subScores.length > 0 || mustHaves.length > 0;
+
   async function updateStatus(newStatus: string) {
     const prevStatus = status;
     setStatus(newStatus);
@@ -85,6 +110,26 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
           </div>
         </div>
         <div className="card-badges">
+          {job.domain && (
+            <span
+              title={`Domain match: ${Math.round((job.domain_match || 0) * 100)}%`}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "2px 8px",
+                borderRadius: 6,
+                whiteSpace: "nowrap",
+                border: "1px solid",
+                ...(job.domain_match >= 0.8
+                  ? { color: "#22c55e", borderColor: "#22c55e55", background: "#22c55e15" }
+                  : job.domain_match >= 0.5
+                    ? { color: "#eab308", borderColor: "#eab30855", background: "#eab30815" }
+                    : { color: "#71717a", borderColor: "#3f3f46", background: "#27272a55" }),
+              }}
+            >
+              {job.domain}
+            </span>
+          )}
           <Badge type="mode" value={job.work_mode} />
           <Badge type="seniority" value={job.seniority_match} />
           <Badge type="source" value={job.source} />
@@ -131,6 +176,47 @@ export default function JobCard({ job, apiPrefix, onStatusChange }: JobCardProps
             <div style={{ marginBottom: 16 }}>
               <div className="section-label">Reasoning</div>
               <div style={{ fontSize: 13, color: "#fafafa", lineHeight: 1.6 }}>{job.reasoning}</div>
+            </div>
+          )}
+
+          {hasBreakdown && (
+            <div style={{ marginBottom: 16 }}>
+              <div className="section-label">Match Breakdown</div>
+              {subScores.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: mustHaves.length ? 12 : 0 }}>
+                  {subScores.map(([label, value]) => {
+                    const pct = Math.round(value * 100);
+                    const cls = pct >= 70 ? "high" : pct >= 40 ? "medium" : "low";
+                    return (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#a1a1aa" }}>
+                        <span style={{ width: 64, flexShrink: 0 }}>{label}</span>
+                        <span className="fit-bar" style={{ flex: 1 }}>
+                          <span className={`fit-bar-fill ${cls}`} style={{ width: `${pct}%` }} />
+                        </span>
+                        <span style={{ width: 32, textAlign: "right", color: "#fafafa", fontWeight: 600 }}>{pct}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {mustHaves.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  {mustHaves.map((m, i) => (
+                    <div key={i} style={{ fontSize: 12, color: m.met ? "#fafafa" : "#a1a1aa", display: "flex", gap: 6 }}>
+                      <span style={{ color: m.met ? "#22c55e" : "#ef4444", fontWeight: 700, flexShrink: 0 }}>
+                        {m.met ? "✓" : "✗"}
+                      </span>
+                      <span>{m.requirement}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {gaps.length > 0 && (
+                <div style={{ marginTop: 10, fontSize: 12, color: "#a1a1aa" }}>
+                  <span style={{ color: "#eab308", fontWeight: 600 }}>Gaps to address: </span>
+                  {gaps.join(" · ")}
+                </div>
+              )}
             </div>
           )}
 

@@ -66,6 +66,8 @@ interface JobDashboardProps {
   statsEndpoint: string;
   exportCsvPath: string;
   exportHtmlPath: string;
+  /** When provided, shows a Domain filter (chips) and a "Best domain match" sort. */
+  domainOptions?: { label: string; value: string }[];
 }
 
 export default function JobDashboard({
@@ -74,6 +76,7 @@ export default function JobDashboard({
   statsEndpoint,
   exportCsvPath,
   exportHtmlPath,
+  domainOptions,
 }: JobDashboardProps) {
   const [stats, setStats] = useState<JobStats | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -82,8 +85,26 @@ export default function JobDashboard({
     status: "",
     work_mode: "",
     urgency: "",
+    domain: "",
     sort: "recent",
   });
+
+  // Inject a Domain filter + a domain-match sort option when domains are configured.
+  const activeGroups: FilterGroup[] = domainOptions
+    ? filterGroups.map((g) =>
+        g.key === "sort"
+          ? { ...g, options: [...g.options, { label: "Best Domain Match", value: "domain" }] }
+          : g,
+      )
+    : filterGroups;
+  if (domainOptions) {
+    const sortIdx = activeGroups.findIndex((g) => g.key === "sort");
+    activeGroups.splice(sortIdx, 0, {
+      label: "Domain",
+      key: "domain",
+      options: [{ label: "All", value: "" }, ...domainOptions],
+    });
+  }
 
   const loadStats = useCallback(async () => {
     const res = await fetch(statsEndpoint);
@@ -96,6 +117,7 @@ export default function JobDashboard({
     if (filters.status) params.set("status", filters.status);
     if (filters.work_mode) params.set("work_mode", filters.work_mode);
     if (filters.urgency) params.set("urgency", filters.urgency);
+    if (filters.domain) params.set("domain", filters.domain);
     if (filters.sort) params.set("sort", filters.sort);
 
     const res = await fetch(`${apiPrefix}?${params}`);
@@ -118,6 +140,7 @@ export default function JobDashboard({
     if (filters.status) params.set("status", filters.status);
     if (filters.work_mode) params.set("work_mode", filters.work_mode);
     if (filters.urgency) params.set("urgency", filters.urgency);
+    if (filters.domain) params.set("domain", filters.domain);
     return params.toString();
   }
 
@@ -157,7 +180,7 @@ export default function JobDashboard({
 
       {stats && <StatsBar stats={statsItems} />}
 
-      <FilterBar groups={filterGroups} current={filters} onChange={handleFilterChange} />
+      <FilterBar groups={activeGroups} current={filters} onChange={handleFilterChange} />
 
       {/* Job list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

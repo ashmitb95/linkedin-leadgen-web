@@ -42,3 +42,6 @@ next-env.d.ts
 
 # browser profile (persistent Playwright session)
 .browser-profile/
+
+# candidate résumé — contains PII, keep local
+config/anusha-resume.md

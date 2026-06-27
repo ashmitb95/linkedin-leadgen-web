@@ -327,6 +327,19 @@ async function main() {
     "ALTER TABLE anusha_jobs ADD COLUMN recruiter_name TEXT DEFAULT ''",
     "ALTER TABLE anusha_jobs ADD COLUMN recruiter_email TEXT DEFAULT ''",
     "ALTER TABLE anusha_jobs ADD COLUMN recruiter_url TEXT DEFAULT ''",
+    "ALTER TABLE jobs ADD COLUMN domain TEXT DEFAULT ''",
+    "ALTER TABLE jobs ADD COLUMN domain_match REAL DEFAULT 0.0",
+    "ALTER TABLE anusha_jobs ADD COLUMN domain TEXT DEFAULT ''",
+    "ALTER TABLE anusha_jobs ADD COLUMN domain_match REAL DEFAULT 0.0",
+    "ALTER TABLE sourav_jobs ADD COLUMN domain TEXT DEFAULT ''",
+    "ALTER TABLE sourav_jobs ADD COLUMN domain_match REAL DEFAULT 0.0",
+    "ALTER TABLE tanmay_jobs ADD COLUMN domain TEXT DEFAULT ''",
+    "ALTER TABLE tanmay_jobs ADD COLUMN domain_match REAL DEFAULT 0.0",
+    "CREATE INDEX IF NOT EXISTS idx_anusha_jobs_domain ON anusha_jobs(domain)",
+    "ALTER TABLE jobs ADD COLUMN score_breakdown TEXT DEFAULT ''",
+    "ALTER TABLE anusha_jobs ADD COLUMN score_breakdown TEXT DEFAULT ''",
+    "ALTER TABLE sourav_jobs ADD COLUMN score_breakdown TEXT DEFAULT ''",
+    "ALTER TABLE tanmay_jobs ADD COLUMN score_breakdown TEXT DEFAULT ''",
   ];
 
   for (const sql of migrations) {

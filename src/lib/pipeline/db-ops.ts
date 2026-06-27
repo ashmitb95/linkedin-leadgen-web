@@ -190,6 +190,9 @@ export interface UpsertJobInput {
   urgency: string;
   reasoning?: string;
   draft_message?: string;
+  domain?: string;
+  domain_match?: number;
+  score_breakdown?: string;
   keyword_match: string;
   found_at: string;
 }
@@ -230,6 +233,9 @@ function createJobOps(tableName: string, runTableName: string) {
           urgency = ?,
           reasoning = COALESCE(?, reasoning),
           draft_message = COALESCE(?, draft_message),
+          domain = COALESCE(NULLIF(?, ''), domain),
+          domain_match = MAX(domain_match, ?),
+          score_breakdown = COALESCE(NULLIF(?, ''), score_breakdown),
           keyword_match = COALESCE(?, keyword_match),
           updated_at = ?
         WHERE id = ?`,
@@ -244,6 +250,8 @@ function createJobOps(tableName: string, runTableName: string) {
           job.fit_score, job.stack_match,
           job.seniority_match, job.urgency,
           job.reasoning || null, job.draft_message || null,
+          job.domain || "", job.domain_match ?? 0,
+          job.score_breakdown || "",
           job.keyword_match || null,
           now, id,
         ],
@@ -258,8 +266,9 @@ function createJobOps(tableName: string, runTableName: string) {
         recruiter_name, recruiter_email, recruiter_url,
         poster_name, poster_headline, poster_url, post_content, post_url,
         fit_score, stack_match, seniority_match, urgency, reasoning, draft_message,
+        domain, domain_match, score_breakdown,
         keyword_match, status, notes, found_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', '', ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', '', ?, ?)`,
       args: [
         id, job.dedup_key, job.source,
         job.title, job.company || "", job.location || "", job.work_mode, job.salary_range || null,
@@ -269,6 +278,7 @@ function createJobOps(tableName: string, runTableName: string) {
         job.post_content || "", job.post_url || "",
         job.fit_score, job.stack_match, job.seniority_match, job.urgency,
         job.reasoning || "", job.draft_message || "",
+        job.domain || "", job.domain_match ?? 0, job.score_breakdown || "",
         job.keyword_match || "",
         job.found_at, now,
       ],

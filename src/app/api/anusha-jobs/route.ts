@@ -7,10 +7,11 @@ export async function GET(request: NextRequest) {
   const work_mode = searchParams.get("work_mode") || undefined;
   const urgency = searchParams.get("urgency") || undefined;
   const min_fit = searchParams.get("min_fit") ? Number(searchParams.get("min_fit")) : undefined;
-  const sort = (searchParams.get("sort") || "recent") as "recent" | "fit";
+  const domain = searchParams.get("domain") || undefined;
+  const sort = (searchParams.get("sort") || "recent") as "recent" | "fit" | "domain";
   const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : 100;
   const offset = searchParams.get("offset") ? Number(searchParams.get("offset")) : 0;
 
-  const jobs = await anushaJobsDb.getJobs({ status, work_mode, urgency, min_fit, sort, limit, offset });
+  const jobs = await anushaJobsDb.getJobs({ status, work_mode, urgency, min_fit, domain, sort, limit, offset });
   return NextResponse.json({ jobs, count: jobs.length });
 }

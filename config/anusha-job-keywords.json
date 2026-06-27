@@ -1,69 +1,65 @@
 {
   "content_search": {
-    "description": "LinkedIn content search — finds posts announcing hiring for Life Sciences/Pharma/Healthcare MBA roles",
+    "description": "LinkedIn content search — finds posts announcing hiring for analyst-level strategy / market intelligence / BD roles in Life Sciences",
     "keywords": [
-      "hiring product manager pharma",
-      "hiring business development biotech",
-      "hiring brand manager healthcare",
-      "life sciences consulting hiring",
-      "pharma marketing manager hiring",
-      "hiring BD manager life sciences",
-      "healthcare strategy role hiring",
-      "biotech commercial team hiring",
-      "hiring medical affairs manager",
-      "pharma product launch hiring",
-      "MedTech business development hiring",
-      "hiring licensing partnerships pharma"
+      "hiring market intelligence analyst pharma",
+      "hiring competitive intelligence biotech",
+      "hiring strategy analyst life sciences",
+      "hiring business development analyst pharma",
+      "pharma market research analyst hiring",
+      "hiring corporate strategy pharma",
+      "CDMO business development hiring",
+      "hiring insights analyst healthcare",
+      "biotech strategy associate hiring",
+      "hiring commercial analyst life sciences"
     ],
     "max_per_run": 6,
     "max_scrolls": 6
   },
   "jobs_search": {
-    "description": "LinkedIn Jobs search — structured job listings for Life Sciences MBA roles",
+    "description": "LinkedIn Jobs search — structured analyst/associate listings in Life Sciences strategy & market intelligence",
     "keywords": [
-      "Product Manager Life Sciences",
-      "Business Development Pharma",
-      "Brand Manager Healthcare",
-      "Strategy Consultant Biotech",
-      "Marketing Manager Pharma",
-      "BD Manager MedTech"
+      "Market Intelligence Analyst Pharma",
+      "Competitive Intelligence Life Sciences",
+      "Strategy Analyst Biotech",
+      "Business Development Analyst Pharma",
+      "Market Research Analyst Pharma",
+      "Corporate Strategy Life Sciences"
     ],
     "max_per_run": 4,
     "max_scrolls": 8,
     "filters": {
       "date_posted": "past_week",
-      "experience_level": "senior"
+      "experience_level": "associate"
     }
   },
   "naukri": {
     "description": "Naukri.com — India's largest job board",
     "enabled": true,
     "keywords": [
-      "Product Manager Pharma",
-      "Business Development Life Sciences",
-      "Brand Manager Healthcare",
-      "Healthcare Consultant",
-      "Pharma Marketing Manager",
-      "Medical Affairs Manager"
+      "Market Intelligence Analyst Pharma",
+      "Competitive Intelligence Analyst",
+      "Strategy Analyst Life Sciences",
+      "Business Development Analyst Pharma",
+      "Market Research Analyst Pharma",
+      "Corporate Strategy Analyst"
     ],
     "max_per_run": 4,
     "max_scrolls": 4,
     "filters": {
-      "experience": "3-8",
+      "experience": "2-6",
       "sort_by": "date"
     }
   },
   "hirist": {
-    "description": "Hirist.tech — Tech-focused job board. Limited Life Sciences roles but includes product/BD categories.",
-    "enabled": true,
+    "description": "Hirist.tech — tech-focused board, largely irrelevant for Life Sciences strategy roles. Disabled.",
+    "enabled": false,
     "keywords": [
-      "product-manager-jobs",
-      "business-development-jobs",
-      "marketing-jobs",
-      "strategy-consulting-jobs"
+      "business-analyst-jobs",
+      "research-analyst-jobs"
     ],
-    "max_per_run": 2,
-    "max_scrolls": 3
+    "max_per_run": 1,
+    "max_scrolls": 2
   },
   "search_delay_ms": 5000,
   "quick": {

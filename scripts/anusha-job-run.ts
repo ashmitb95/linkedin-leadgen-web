@@ -41,7 +41,37 @@ import { anushaJobsDb } from "../src/lib/jobs";
 
 const CONFIG_PATH = path.resolve(process.cwd(), "config", "anusha-job-keywords.json");
 const PROFILE_PATH = path.resolve(process.cwd(), "config", "anusha-job-profile.json");
+const RESUME_PATH = path.resolve(process.cwd(), "config", "anusha-resume.md");
 const profile = JSON.parse(readFileSync(PROFILE_PATH, "utf-8"));
+
+// Résumé text grounds scoring against real experience. Empty until the
+// placeholder file is filled in — scoring then falls back to the profile JSON.
+let resumeText = "";
+try {
+  const stripped = readFileSync(RESUME_PATH, "utf-8").replace(/<!--[\s\S]*?-->/g, "").trim();
+  // The placeholder file is just a heading + comment; treat short content as empty.
+  resumeText = stripped.replace(/^#.*$/m, "").trim().length > 40 ? stripped : "";
+} catch {
+  resumeText = "";
+}
+
+// #3 Deterministic pre-filter: drop clearly under-level / junk cards before the
+// LLM ever sees them. Conservative on purpose — only obvious non-matches.
+const JUNK_PATTERN =
+  /\b(intern(ship)?|fresher|trainee|entry[ -]?level|fresh graduate|0[\s-]*[–-]\s*[12]\s*year)\b/i;
+
+function prefilterBlocks(blocksJson: string): { json: string; kept: number; dropped: number } {
+  let parsed: any;
+  try {
+    parsed = JSON.parse(blocksJson);
+  } catch {
+    return { json: blocksJson, kept: 0, dropped: 0 };
+  }
+  const blocks: any[] = Array.isArray(parsed) ? parsed : parsed.blocks || [];
+  const kept = blocks.filter((b) => !JUNK_PATTERN.test(String(b?.cardText || "")));
+  const out = Array.isArray(parsed) ? kept : { ...parsed, blocks: kept, total: kept.length };
+  return { json: JSON.stringify(out), kept: kept.length, dropped: blocks.length - kept.length };
+}
 
 interface RunStats {
   searchesRun: number;
@@ -78,8 +108,19 @@ async function runSearch(
       return;
     }
 
-    console.log("    Scoring with Claude (Anusha profile)...");
-    const scoredJobs = await extractAndScoreJobs(blocksJson as string, job.keyword, job.mode as any, profile);
+    const { json: filteredJson, kept, dropped } = prefilterBlocks(blocksJson as string);
+    if (dropped > 0) console.log(`    Pre-filter dropped ${dropped} under-level/junk blocks (${kept} kept)`);
+    if (kept === 0) {
+      console.log("    All blocks filtered out — skipping scoring");
+      stats.searchesRun++;
+      return;
+    }
+
+    console.log(`    Scoring with Claude (Anusha profile${resumeText ? " + résumé" : ""})...`);
+    const scoredJobs = await extractAndScoreJobs(filteredJson, job.keyword, job.mode as any, profile, {
+      enhanced: true,
+      resumeText,
+    });
     console.log(`    ${scoredJobs.length} matching jobs`);
     stats.jobsScored += scoredJobs.length;
 
@@ -114,6 +155,16 @@ async function runSearch(
         urgency: j.urgency,
         reasoning: j.reasoning,
         draft_message: j.draftMessage,
+        domain: j.domain,
+        domain_match: j.domainMatch,
+        score_breakdown: JSON.stringify({
+          domainFit: j.domainFit,
+          roleFit: j.roleFit,
+          seniorityFit: j.seniorityFit,
+          locationFit: j.locationFit,
+          mustHaves: j.mustHaves,
+          gaps: j.gaps,
+        }),
         keyword_match: `[${modeLabel}] ${j.keywordMatch}`,
         found_at: now,
       });

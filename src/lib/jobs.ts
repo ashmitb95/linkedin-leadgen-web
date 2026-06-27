@@ -11,6 +11,7 @@ function createJobQueries(tableName: string, runTableName: string) {
     if (filters.work_mode) { clauses.push("work_mode = ?"); args.push(filters.work_mode); }
     if (filters.urgency) { clauses.push("urgency = ?"); args.push(filters.urgency); }
     if (filters.min_fit) { clauses.push("fit_score >= ?"); args.push(filters.min_fit); }
+    if (filters.domain) { clauses.push("domain = ?"); args.push(filters.domain); }
 
     const where = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
     const limit = filters.limit || 100;
@@ -19,7 +20,9 @@ function createJobQueries(tableName: string, runTableName: string) {
     const orderBy =
       filters.sort === "recent"
         ? "ORDER BY found_at DESC, fit_score DESC"
-        : "ORDER BY fit_score DESC, found_at DESC";
+        : filters.sort === "domain"
+          ? "ORDER BY domain_match DESC, fit_score DESC"
+          : "ORDER BY fit_score DESC, found_at DESC";
 
     const result = await db.execute({
       sql: `SELECT * FROM ${tableName} ${where} ${orderBy} LIMIT ? OFFSET ?`,
