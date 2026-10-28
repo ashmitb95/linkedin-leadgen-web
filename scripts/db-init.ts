@@ -237,6 +237,21 @@ async function main() {
   console.log("  anusha_contacts table: OK");
   await db.execute("CREATE INDEX IF NOT EXISTS idx_anusha_contacts_company ON anusha_contacts(company_slug)");
 
+  // Email finding (scripts/anusha-emails.ts) — added after the first deploy.
+  const anushaEmailColumns = [
+    "ALTER TABLE anusha_contacts ADD COLUMN email TEXT DEFAULT ''",
+    "ALTER TABLE anusha_contacts ADD COLUMN email_status TEXT DEFAULT ''",
+    "ALTER TABLE anusha_contacts ADD COLUMN email_note TEXT DEFAULT ''",
+  ];
+  for (const sql of anushaEmailColumns) {
+    try {
+      await db.execute(sql);
+    } catch {
+      // Column already exists
+    }
+  }
+  console.log("  anusha_contacts email columns: OK");
+
   // Her progress — never written by the import, so re-crawls can't clobber it.
   await db.execute(`
     CREATE TABLE IF NOT EXISTS anusha_outreach (

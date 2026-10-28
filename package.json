@@ -22,6 +22,7 @@
     "anusha:run:quick": "npx tsx scripts/anusha-job-run.ts --quick",
     "anusha:companies": "npx tsx scripts/anusha-company-crawl.ts",
     "anusha:import": "npx tsx scripts/anusha-import.ts",
+    "anusha:emails": "npx tsx scripts/anusha-emails.ts",
     "sourav:run": "npx tsx scripts/sourav-job-run.ts",
     "sourav:run:quick": "npx tsx scripts/sourav-job-run.ts --quick",
     "sourav:run:linkedin": "npx tsx scripts/sourav-job-run.ts --linkedin-only",

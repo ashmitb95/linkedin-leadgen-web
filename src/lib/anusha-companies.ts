@@ -117,6 +117,9 @@ export async function getCompany(slug: string): Promise<{ company: CompanyDetail
       label: str(c.ai_label) as ContactLabel | "",
       score: Number(c.ai_score),
       reason: str(c.ai_reason),
+      email: str(c.email),
+      emailStatus: str(c.email_status) as Contact["emailStatus"],
+      emailNote: str(c.email_note),
       outreach: c.status
         ? {
             status: str(c.status) as OutreachStatus,

@@ -1,0 +1,17 @@
+{
+  "description": "Corporate email patterns per company slug, researched from public sources. Consumed by scripts/anusha-emails.ts; companies not listed fall back to Hunter domain search. Tokens: {first} {last} {f} {l}. Patterns are tried in order — the first that verifies wins.",
+  "companies": {
+    "syngene-international": { "domain": "syngeneintl.com", "patterns": ["{first}.{last}"], "source": "Mailmo ~92%, Prospeo ~71%" },
+    "sanofi": { "domain": "sanofi.com", "patterns": ["{first}.{last}"], "source": "Mailmo ~92%, ContactOut ~86%" },
+    "lonza": { "domain": "lonza.com", "patterns": ["{first}.{last}", "{first}{last}"], "source": "Mailmo ~92%, LeadNear ~72% (+18% firstlast)" },
+    "aragen-life-sciences": { "domain": "aragen.com", "patterns": ["{first}.{last}", "{f}.{last}"], "source": "Prospeo 67% / 33%" },
+    "sai-life-sciences": { "domain": "sailife.com", "patterns": ["{first}.{last}", "{first}.{l}"], "source": "Prospeo ~79% first.last; company contact page shows first.l" },
+    "biological-e": { "domain": "biologicale.com", "patterns": ["{first}.{last}", "{f}.{last}"], "source": "Prospeo ~86%; CFO address in IFC filing matches" },
+    "bharat-biotech": { "domain": "bharatbiotech.com", "patterns": ["{f}{last}"], "source": "Prospeo 57–71% (single source)" },
+    "dr-reddy-s-laboratories": { "domain": "drreddys.com", "patterns": ["{f}{last}", "{first}{last}"], "source": "Mailmo ~93%, Clay" },
+    "biocon-biologics": { "domain": "biocon.com", "patterns": ["{first}.{last}"], "source": "Prospeo ~89%, Mailmo ~92%" },
+    "gland-pharma": { "domain": "glandpharma.com", "patterns": ["{first}.{last}", "{f}.{last}"], "source": "IR addresses in company press releases" },
+    "laurus-labs": { "domain": "lauruslabs.com", "patterns": ["{first}.{l}", "{f}.{last}"], "source": "Personal addresses in BSE filings (vivek.k@); Prospeo says f.last ~50%" },
+    "zs": { "domain": "zs.com", "patterns": ["{first}.{last}"], "source": "Mailmo ~92%, Clay" }
+  }
+}

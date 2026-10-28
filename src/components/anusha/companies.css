@@ -99,7 +99,10 @@
 .ac-tag-ref { background: var(--ac-blue-soft); color: var(--ac-blue); }
 .ac-tag-rec { background: var(--ac-teal-soft); color: var(--ac-teal); }
 .ac-tag-new { background: var(--ac-accent-soft); color: #a5b4fc; }
+.ac-tag-plain { background: var(--ac-surface); color: var(--ac-muted); border: 1px solid var(--ac-border-strong); }
 .ac-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.ac-email { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--ac-surface); border: 1px solid var(--ac-border); border-radius: 9px; padding: 6px 9px; }
+.ac-email-addr { font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; flex: 1; min-width: 0; }
 
 /* ── People ── */
 .ac-people { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }

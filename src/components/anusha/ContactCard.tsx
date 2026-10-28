@@ -10,6 +10,12 @@ const LABEL_TAGS: Record<string, { text: string; cls: string }> = {
   recruiter: { text: "Recruiter", cls: "ac-tag-rec" },
 };
 
+const EMAIL_BADGES: Record<string, { text: string; cls: string }> = {
+  verified: { text: "✓ Verified", cls: "ac-tag-hm" },
+  likely: { text: "Likely", cls: "ac-tag-warm" },
+  guess: { text: "Best guess", cls: "ac-tag-plain" },
+};
+
 // One step back from each status, for "Undo".
 const PREVIOUS: Record<OutreachStatus, OutreachStatus | null> = {
   messaged: null,
@@ -27,6 +33,8 @@ export default function ContactCard({ contact, onSave }: Props) {
   const [saving, setSaving] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [note, setNote] = useState(contact.outreach?.notes || "");
+  const [copied, setCopied] = useState(false);
+  const emailBadge = EMAIL_BADGES[contact.emailStatus];
   const o = contact.outreach;
   const label = LABEL_TAGS[contact.label];
 
@@ -61,6 +69,26 @@ export default function ContactCard({ contact, onSave }: Props) {
       </div>
 
       {contact.reason && <div className="ac-reason">{contact.reason}</div>}
+
+      {contact.email && emailBadge && (
+        <div className="ac-email" title={contact.emailNote}>
+          <span className="ac-email-addr">✉️ {contact.email}</span>
+          <span className={`ac-tag ${emailBadge.cls}`}>{emailBadge.text}</span>
+          <button
+            className="ac-undo"
+            onClick={async () => {
+              await navigator.clipboard.writeText(contact.email);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+          >
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+      )}
+      {contact.emailStatus === "not_found" && (
+        <div className="ac-reason">✉️ No email found — reach out on LinkedIn instead.</div>
+      )}
 
       <div className="ac-actions">
         <a className="ac-btn ac-btn-ghost" href={contact.profileUrl} target="_blank" rel="noreferrer">

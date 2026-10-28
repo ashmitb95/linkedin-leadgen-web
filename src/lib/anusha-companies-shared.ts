@@ -62,6 +62,9 @@ export interface Contact {
   label: ContactLabel | "";
   score: number;
   reason: string;
+  email: string;
+  emailStatus: "verified" | "likely" | "guess" | "not_found" | "";
+  emailNote: string;
   outreach: Outreach | null;
 }
 
