@@ -44,6 +44,12 @@
 
 /* ── Company list ── */
 .ac-list { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; }
+.ac-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.ac-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--ac-surface); border: 1px solid var(--ac-border-strong); border-radius: 999px; padding: 5px 12px; color: var(--ac-text); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.ac-chip span { font-size: 11px; color: var(--ac-muted); font-weight: 500; }
+.ac-chip:hover { border-color: var(--ac-accent); }
+.ac-chip-on { background: var(--ac-accent-soft); border-color: var(--ac-accent); }
+.ac-chip-on span { color: #c7d2fe; }
 .ac-group { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ac-muted); margin: 12px 4px 2px; }
 .ac-group:first-child { margin-top: 0; }
 .ac-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--ac-surface); border: 1px solid var(--ac-border); border-radius: 12px; padding: 9px 11px; color: inherit; cursor: pointer; font: inherit; transition: border-color 0.15s, background 0.15s; }

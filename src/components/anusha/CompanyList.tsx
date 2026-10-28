@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { CompanySummary } from "@/lib/anusha-companies-shared";
 import { CompanyLogo } from "./bits";
 
@@ -8,6 +9,8 @@ const GROUPS: { tier: number; label: string }[] = [
   { tier: 2, label: "Indian pharma, vaccines & CDMOs" },
   { tier: 3, label: "Consulting & research firms" },
 ];
+
+const CITIES = ["All", "Bengaluru", "Hyderabad"];
 
 const DOT_CLASS: Record<CompanySummary["progress"], string> = {
   none: "ac-dot",
@@ -22,10 +25,21 @@ interface Props {
 }
 
 export default function CompanyList({ companies, selected, onSelect }: Props) {
+  const [city, setCity] = useState("All");
+  const shown = city === "All" ? companies : companies.filter((c) => c.cities.includes(city));
+
   return (
     <div className="ac-list">
+      <div className="ac-filter">
+        {CITIES.map((c) => (
+          <button key={c} className={c === city ? "ac-chip ac-chip-on" : "ac-chip"} onClick={() => setCity(c)}>
+            {c === "All" ? "All cities" : `📍 ${c}`}
+            <span>{c === "All" ? companies.length : companies.filter((x) => x.cities.includes(c)).length}</span>
+          </button>
+        ))}
+      </div>
       {GROUPS.map(({ tier, label }) => {
-        const inGroup = companies.filter((c) => c.tier === tier);
+        const inGroup = shown.filter((c) => c.tier === tier);
         if (!inGroup.length) return null;
         return (
           <div key={tier} style={{ display: "contents" }}>
