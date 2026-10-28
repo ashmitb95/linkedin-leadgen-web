@@ -191,6 +191,64 @@ async function main() {
   for (const sql of anushaIndices) await db.execute(sql);
   console.log("  anusha_jobs indices: OK");
 
+  // ───── Anusha target companies (outreach page) ─────
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS anusha_companies (
+      slug            TEXT PRIMARY KEY,
+      sort_order      INTEGER NOT NULL DEFAULT 0,
+      name            TEXT NOT NULL,
+      tier            INTEGER NOT NULL DEFAULT 3,
+      cities          TEXT NOT NULL DEFAULT '[]',
+      type            TEXT DEFAULT '',
+      hook            TEXT DEFAULT '',
+      teams           TEXT DEFAULT '',
+      linkedin_url    TEXT DEFAULT '',
+      linkedin_id     TEXT DEFAULT '',
+      website         TEXT DEFAULT '',
+      careers_url     TEXT DEFAULT '',
+      industry        TEXT DEFAULT '',
+      size            TEXT DEFAULT '',
+      headquarters    TEXT DEFAULT '',
+      jobs_search_url TEXT DEFAULT '',
+      jobs            TEXT NOT NULL DEFAULT '[]',
+      crawled_at      TEXT DEFAULT ''
+    )
+  `);
+  console.log("  anusha_companies table: OK");
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS anusha_contacts (
+      id              TEXT PRIMARY KEY,
+      company_slug    TEXT NOT NULL,
+      name            TEXT NOT NULL,
+      headline        TEXT DEFAULT '',
+      current_role    TEXT DEFAULT '',
+      location        TEXT DEFAULT '',
+      degree          TEXT DEFAULT '',
+      search_group    TEXT DEFAULT '',
+      is_alumni       INTEGER NOT NULL DEFAULT 0,
+      profile_url     TEXT NOT NULL,
+      ai_label        TEXT DEFAULT '',
+      ai_score        INTEGER NOT NULL DEFAULT 0,
+      ai_reason       TEXT DEFAULT ''
+    )
+  `);
+  console.log("  anusha_contacts table: OK");
+  await db.execute("CREATE INDEX IF NOT EXISTS idx_anusha_contacts_company ON anusha_contacts(company_slug)");
+
+  // Her progress — never written by the import, so re-crawls can't clobber it.
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS anusha_outreach (
+      contact_id      TEXT PRIMARY KEY,
+      status          TEXT NOT NULL,
+      status_at       TEXT NOT NULL,
+      messaged_at     TEXT DEFAULT '',
+      notes           TEXT DEFAULT ''
+    )
+  `);
+  console.log("  anusha_outreach table: OK");
+
   // ───── Sourav Jobs tables ─────
 
   await db.execute(`

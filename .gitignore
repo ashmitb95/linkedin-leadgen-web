@@ -45,3 +45,9 @@ next-env.d.ts
 
 # candidate résumé — contains PII, keep local
 config/anusha-resume.md
+
+# crawled company intel — contains people data, keep local
+/data/
+
+# brainstorm mockups
+.superpowers/

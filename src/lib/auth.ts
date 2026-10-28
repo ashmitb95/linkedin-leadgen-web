@@ -2,12 +2,14 @@
  * Role-based access: which pages and API routes each user can access.
  *
  * pages   — front-end routes shown in NavBar
+ * hidden  — extra front-end routes the user may open by URL, not shown in NavBar
  * api     — API path prefixes the user is allowed to call
  * default — where to redirect after login
  */
 
 export interface UserRole {
   pages: { href: string; label: string }[];
+  hidden?: string[];
   api: string[];
   default: string;
 }
@@ -17,7 +19,8 @@ const roles: Record<string, UserRole> = {
     pages: [
       { href: "/", label: "Leads" },
       { href: "/jobs", label: "Job Search" },
-      { href: "/anusha", label: "Anusha's Jobs" },
+      { href: "/anusha", label: "Anusha · Companies" },
+      { href: "/anusha/jobs", label: "Anusha's Jobs" },
       { href: "/sourav", label: "Sourav's Jobs" },
       { href: "/tanmay", label: "Tanmay's Jobs" },
     ],
@@ -26,9 +29,10 @@ const roles: Record<string, UserRole> = {
   },
   anusha: {
     pages: [
-      { href: "/anusha", label: "My Jobs" },
+      { href: "/anusha", label: "My Companies" },
     ],
-    api: ["/api/anusha-job", "/api/auth/"],
+    hidden: ["/anusha/jobs"],
+    api: ["/api/anusha-job", "/api/anusha-companies", "/api/anusha-outreach", "/api/auth/"],
     default: "/anusha",
   },
   sourav: {
@@ -61,7 +65,7 @@ export function getUserRole(username: string): UserRole | null {
 export function canAccessPage(username: string, pathname: string): boolean {
   const role = getUserRole(username);
   if (!role) return false;
-  return role.pages.some((p) => p.href === pathname);
+  return role.pages.some((p) => p.href === pathname) || !!role.hidden?.includes(pathname);
 }
 
 export function canAccessApi(username: string, pathname: string): boolean {
