@@ -65,7 +65,6 @@ export default function ContactCard({ contact, onSave }: Props) {
         {label && <span className={`ac-tag ${label.cls}`}>{label.text}</span>}
         {contact.isAlumni && <span className="ac-tag ac-tag-alum">🎓 Ex-Bharat Biotech</span>}
         {contact.degree === "1st" && <span className="ac-tag ac-tag-warm">🤝 Ashmit knows them</span>}
-        {contact.degree === "2nd" && <span className="ac-tag ac-tag-warm">🤝 Mutual via Ashmit</span>}
       </div>
 
       {contact.reason && <div className="ac-reason">{contact.reason}</div>}
